@@ -619,9 +619,28 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <h1><span class="accent">FATP</span> Station Analysis</h1>
 </div>
 <div class="chart-card">
-<div class="chart-title">📊 FATP — Station data pending (xlsx source)</div>
+<div class="chart-title">📊 FATP Cumulative Retest Rate &amp; Failure Rate by Station</div>
 <div class="chart-container"><canvas id="fatpChart"></canvas></div>
-<p style="font-size:0.78rem;color:var(--text-secondary);padding:12px 0">FATP station-level detail will be populated once the xlsx source is parsed. Overall: FPY 35.5%, LPY 60.8%.</p>
+<button class="collapsible-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="arrow">▶</span> Show Station Detail Table</button>
+<div class="collapsible-content">
+<table class="data-table">
+<thead><tr><th>Station</th><th>Input</th><th>Passed</th><th>Failed</th><th>Retest Pass</th><th>Retest %</th><th>First Pass Yield (FPY)</th><th>Last Pass Yield (LPY)</th></tr></thead>
+<tbody>
+<tr><td>C5. Scan SN</td><td>228</td><td>228</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>AO. Assembly</td><td>228</td><td>228</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>T1. Function Test</td><td>228</td><td>165</td><td>63</td><td>38</td><td>16.7%</td><td class="yield-bad">55.7%</td><td class="yield-bad">72.4%</td></tr>
+<tr><td>AS. Back Cover Pressing</td><td>37</td><td>37</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>DW. WLAN/BT OTA</td><td>94</td><td>94</td><td>0</td><td>2</td><td>2.1%</td><td class="yield-good">97.9%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>DY. DPD Test</td><td>155</td><td>154</td><td>1</td><td>1</td><td>0.6%</td><td class="yield-good">98.7%</td><td class="yield-good">99.4%</td></tr>
+<tr><td>DK. Sensor & Barcode</td><td>167</td><td>156</td><td>11</td><td>16</td><td>9.6%</td><td class="yield-bad">83.8%</td><td class="yield-warn">93.4%</td></tr>
+<tr><td>CU. TQM</td><td>14</td><td>13</td><td>1</td><td>2</td><td>14.3%</td><td class="yield-bad">78.6%</td><td class="yield-warn">92.9%</td></tr>
+<tr><td>IO. Post Inspection</td><td>154</td><td>154</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>QF. FQC</td><td>154</td><td>150</td><td>4</td><td>0</td><td>0.0%</td><td class="yield-good">97.4%</td><td class="yield-good">97.4%</td></tr>
+<tr><td>PO. Packing</td><td>192</td><td>192</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>SN. Store In</td><td>192</td><td>192</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 
@@ -630,9 +649,33 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <div class="header" style="padding:16px 0 8px">
 <h1><span class="accent">FATP</span> Pareto & Actions</h1>
 </div>
-<div class="chart-card">
-<div class="chart-title">📉 FATP Pareto data pending</div>
-<p style="font-size:0.78rem;color:var(--text-secondary);padding:12px 0">FATP failure pareto data will be populated once the xlsx source is parsed.</p>
+<div class="chart-card" id="export-fatp-fpy">
+<div class="chart-title">📉 FATP — FPY Issues Pareto (Retest Pass)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-fatp-fpy">
+<button class="active" onclick="updatePareto('fatp-fpy',10,this)">Top 10</button>
+<button onclick="updatePareto('fatp-fpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="fatp-fpyChart"></canvas></div></div>
+<div id="fatp-fpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('fatp-fpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('fatp-fpy')">📊 Export to Excel</button></div>
+</div>
+<div class="chart-card" id="export-fatp-lpy">
+<div class="chart-title">📉 FATP — LPY Issues Pareto (Failures)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-fatp-lpy">
+<button class="active" onclick="updatePareto('fatp-lpy',10,this)">Top 10</button>
+<button onclick="updatePareto('fatp-lpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="fatp-lpyChart"></canvas></div></div>
+<div id="fatp-lpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('fatp-lpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('fatp-lpy')">📊 Export to Excel</button></div>
+</div>
+<div class="save-bar">
+<button class="save-btn save-btn-primary" onclick="saveToGist()">💾 Save for Everyone</button>
+<button class="save-btn save-btn-secondary" onclick="loadFromGist()">🔄 Reload Latest</button>
+<button class="save-btn save-btn-secondary" onclick="loadHistory();showSection('action-data',document.querySelector('[onclick*=action-data]'))">📜 History</button>
+<span class="save-status" id="saveStatusFatp">Ready</span>
 </div>
 </div>
 
@@ -782,8 +825,11 @@ makeStationChart('sensorChart',
   [0.0,0.0,3.5,0.0,0.0,0.0],
   [0.0,0.5,2.5,0.0,0.0,0.0]);
 
-// FATP stations (placeholder)
-makeStationChart('fatpChart',['FATP (pending detail)'],[0],[0]);
+// FATP stations
+makeStationChart('fatpChart',
+  ['C5.Scan SN','AO.Assembly','T1.Function Test','AS.Back Cover','DW.WLAN OTA','DY.DPD Test','DK.Sensor/Barcode','CU.TQM','IO.Post Insp','QF.FQC','PO.Packing','SN.Store In'],
+  [0.0,0.0,16.7,0.0,2.1,0.6,9.6,14.3,0.0,0.0,0.0,0.0],
+  [0.0,0.0,27.6,0.0,0.0,0.6,6.6,7.1,0.0,2.6,0.0,0.0]);
 
 // ===== DYNAMIC PARETO SYSTEM =====
 // SPE FPY (Retest) — rates calculated as retestQty / totalInput(428) * 100
@@ -852,16 +898,45 @@ const sensorLpyAll=[
   {l:"BFT | Measue_DUT_P1V8_MCU_Current",r:0.25}
 ];
 
+// FATP FPY (Retest) — rates as retestQty / 228 * 100
+const fatpFpyAll=[
+  {l:"FT1 | SoC_Audio_Intensity_right",r:3.07},
+  {l:"DK | GET_LOW_ALS_MEASUREMENT",r:2.63},
+  {l:"FT1 | Check_2.4GHz_WIFI_RSSI",r:2.19},
+  {l:"FT1 | Check_5GHz_WIFI_RSSI",r:1.32},
+  {l:"FT1 | Read_Assy_SN_On_STM32U5",r:1.32},
+  {l:"FT1 | Compare_Standard_Deviation",r:1.32},
+  {l:"DK | VERIFY_ADB_AVAILABLE",r:1.32},
+  {l:"FT1 | Get_Final_Tamper_Pin5",r:1.32},
+  {l:"FT1 | Verify_SPE_Touch_3_y",r:0.88},
+  {l:"FT1 | Analyze_data_left",r:0.88}
+];
+// FATP LPY (Failures) — rates as failQty / 228 * 100
+const fatpLpyAll=[
+  {l:"FT1 | Can not power on after barcode assembly",r:3.51},
+  {l:"DK | TOF_SENSOR_CHECK_DISTANCE_VALUE",r:2.19},
+  {l:"FT1 | WLAN_Check_5GHz_WIFI_RSSI",r:1.75},
+  {l:"FT1 | Microphone_Analyze_data_right",r:1.75},
+  {l:"FT1 | Analyze_data_left",r:1.75},
+  {l:"FT1 | Power_Up_Get_SPE_Board_ID",r:1.32},
+  {l:"FT1 | Tamper_Clearance_Check",r:1.32},
+  {l:"FT1 | SoC_Audio_Intensity_right",r:1.32},
+  {l:"FT1 | Inspect_Dip_logo_white_LED",r:1.32},
+  {l:"FT1 | Get_Barcode_Module_SN",r:1.32}
+];
+
 const PARETO_CONFIG={
   'spe-fpy':{data:speFpyAll,color:C.green,unit:'Retest Rate %'},
   'spe-lpy':{data:speLpyAll,color:C.red,unit:'Failure Rate %'},
   'mlb-fpy':{data:mlbFpyAll,color:C.green,unit:'Retest Rate %'},
   'mlb-lpy':{data:mlbLpyAll,color:C.red,unit:'Failure Rate %'},
   'sensor-fpy':{data:sensorFpyAll,color:C.green,unit:'Retest Rate %'},
-  'sensor-lpy':{data:sensorLpyAll,color:C.red,unit:'Failure Rate %'}
+  'sensor-lpy':{data:sensorLpyAll,color:C.red,unit:'Failure Rate %'},
+  'fatp-fpy':{data:fatpFpyAll,color:C.green,unit:'Retest Rate %'},
+  'fatp-lpy':{data:fatpLpyAll,color:C.red,unit:'Failure Rate %'}
 };
 const paretoCharts={};
-const paretoCountState={'spe-fpy':10,'spe-lpy':10,'mlb-fpy':10,'mlb-lpy':10,'sensor-fpy':10,'sensor-lpy':10};
+const paretoCountState={'spe-fpy':10,'spe-lpy':10,'mlb-fpy':10,'mlb-lpy':10,'sensor-fpy':10,'sensor-lpy':10,'fatp-fpy':10,'fatp-lpy':10};
 
 const ACTION_DATA={
   // table_0 = SPE FPY (Retests) — sourced from MIL doc + FA Tracker
@@ -928,6 +1003,32 @@ const ACTION_DATA={
     {issue:"AOIA | Component Lead Bent",risk:"low",fa:"[Material] U4 raw material in tray having deformed lead. Pre-AOI allowed to pass.",ca:"Tighten Post-AOI for U4 lead inspection. Vendor to supply U4 in reel for EVT.",dri:"Vendor / PSE"},
     {issue:"BFT | Check_sensor_board_ID",risk:"low",fa:"[Material] U4 raw material deformed lead — same root cause family.",ca:"Vendor to supply U4 (PN change to A02) in reel. Effective in EVT.",dri:"Vendor"},
     {issue:"BFT | Measue_DUT_P1V8_MCU_Current",risk:"low",fa:"[Material] Spec: 10mA < x < 15mA, Result: 0.010mA. Visual inspection: U4 pin floating. Same U4 deformed lead root cause.",ca:"Vendor to supply U4 (PN change to A02) in reel. Effective in EVT.",dri:"Vendor"}
+  ],
+  // table_6 = FATP FPY (Retests) — sourced from FATP Yield Report + FA Tracker + MIL doc
+  table_6:[
+    {issue:"FT1 | SoC_Audio_Intensity_right",risk:"high",fa:"[Test Infrastructure] 7 retests (3.07%). No proper test chamber/shielding box during proto build — audio test results unreliable due to ambient noise interference. Bench test shows speaker sounds normal. MTE Sam repositioned audio receiver.",ca:"CRITICAL (Top 5 Action #2):\n1. Deliver proper FATP test chambers by mid-April — treat as hard gate for EVT.\n2. Add 'suspected test environment' flag to failures at audio stations.\n3. MTE Sam to finalize audio receiver positioning.\nEst. yield recovery: ~10% retest reduction.",dri:"MTE Sam / TE Danial"},
+    {issue:"DK | GET_LOW_ALS_MEASUREMENT",risk:"high",fa:"[Test Infrastructure] 6 retests (2.63%). ALS sensor covered by scanner station cover during test. Offline retest passes. Sensor station not fully optimized — unit goes to FAE after 1x fail.",ca:"1. Fix scanner station cover to not obstruct ALS sensor.\n2. Optimize sensor station to allow retests before FAE escalation.\n3. Expected to resolve with proper test fixtures at EVT.",dri:"MTE Sam / TE Danial"},
+    {issue:"FT1 | Check_2.4GHz_WIFI_RSSI",risk:"med",fa:"[Test Infrastructure] 5 retests (2.19%). No proper shielding box — WiFi RSSI readings affected by ambient RF interference.",ca:"1. Proper test chamber delivery mid-April.\n2. MTE Haigang adjusted lower limit to -50.\n3. Monitor with new limit and shielding box.",dri:"MTE Haigang / SQ Meena"},
+    {issue:"FT1 | Check_5GHz_WIFI_RSSI",risk:"med",fa:"[Test Infrastructure] 3 retests (1.32%). Same shielding box root cause as 2.4GHz. Units pass on retest at different station.",ca:"Same fix: proper test chamber at EVT. Limit adjusted to -50.",dri:"MTE Haigang / SQ Meena"},
+    {issue:"FT1 | Read_Assy_SN_On_STM32U5",risk:"low",fa:"[Test Script] 3 retests. Intermittent STM32U5 serial number read failure.",ca:"Under monitoring. Test script update for EVT.",dri:"MTE"},
+    {issue:"FT1 | Compare_Standard_Deviation",risk:"low",fa:"[Test Infrastructure] 3 retests. Audio standard deviation comparison affected by ambient noise.",ca:"Expected to resolve with test chamber.",dri:"MTE Sam"},
+    {issue:"DK | VERIFY_ADB_AVAILABLE",risk:"low",fa:"[Test Script] 3 retests. ADB connection intermittent at Sensor & Barcode station.",ca:"Under monitoring.",dri:"MTE"},
+    {issue:"FT1 | Get_Final_Tamper_Pin5",risk:"low",fa:"[Workmanship] 3 retests. Tamper pin contact intermittent — zebra rubber positioning.",ca:"IE to follow T3 practice: zebra rubber separated by piece per slot in tray.",dri:"IE Rohani"},
+    {issue:"FT1 | Verify_SPE_Touch_3_y",risk:"low",fa:"2 retests. Pin pad touch intermittent.",ca:"Under monitoring.",dri:"MTE"},
+    {issue:"FT1 | Analyze_data_left",risk:"low",fa:"[Workmanship] 2 retests. Ingress mesh shifted on left mic.",ca:"Visual inspection for ingress mesh alignment before test.",dri:"PD Candy"}
+  ],
+  // table_7 = FATP LPY (Failures) — sourced from FATP FA Tracker + MIL doc + Conclusion
+  table_7:[
+    {issue:"FT1 | Can not power on after barcode assembly",risk:"high",fa:"[Design] 8 true failures (3.51%) — CRITICAL PRIORITY per MIL Conclusion. Bracket for J5/J3 shorts to MLB test points after barcode assembly. Units unable to power on. Kapton tape is temporary mitigation.",ca:"CRITICAL (Top 5 Action #4):\n1. Kapton tape is TEMPORARY — push EE RD to prioritize layout change for EVT so TP clearance is designed in.\n2. PCBA PD to paste Kapton tape near J3, J5 connector TP.\n3. FA PD to paste Kapton tape at SPE, MLB debug flex.\n4. Add continuity check or visual inspection between bracket assembly and power-on test.\n5. Consider fixture/jig that guarantees bracket clearance.\nEst. yield recovery: ~3.5% true failure.",dri:"EE Ariel / PD Clive / EE Yujia / EE Gary"},
+    {issue:"DK | TOF_SENSOR_CHECK_DISTANCE_VALUE",risk:"high",fa:"[Workmanship] 5 true failures (2.19%). Multiple root causes: TOF sponge missing/misplaced into LCD, TOF rubber shifted, FPC TOF assembly issues.",ca:"1. Visual inspection for TOF sponge placement before assembly.\n2. Adjust rubber positioning procedure.\n3. Verify FPC TOF to MLB connection.",dri:"PD Candy / PD Linda"},
+    {issue:"FT1 | WLAN_Check_5GHz_WIFI_RSSI",risk:"med",fa:"[Test Infrastructure / Design] 4 true failures (1.75%). Some units have FAE rework history. MTE Haigang changed lower limit to -50. Some units pass on retest at different station — suspected test environment issue.",ca:"1. Proper test chamber delivery mid-April.\n2. Provide logs to SQ Meena for WiFi parametric analysis.\n3. Track units with rework history separately.",dri:"MTE Haigang / SQ Meena"},
+    {issue:"FT1 | Microphone_Analyze_data_right",risk:"med",fa:"[Workmanship] 4 true failures (1.75%). Visual inspection found ingress mesh on right mic shifted in multiple units. Change new ingress mesh resolves issue.",ca:"1. Visual inspection for ingress mesh alignment at assembly.\n2. IE to add ingress mesh check to SOP.\n3. MTE Sam to reposition audio receiver for consistent measurement.",dri:"PD Candy / MTE Sam"},
+    {issue:"FT1 | Analyze_data_left",risk:"med",fa:"[Workmanship] 4 true failures (1.75%). Same ingress mesh shifted root cause as right mic.",ca:"Same fix: visual inspection for ingress mesh alignment. IE SOP update.",dri:"PD Candy"},
+    {issue:"FT1 | Power_Up_Get_SPE_Board_ID",risk:"med",fa:"[Workmanship / Design] 3 true failures (1.32%). SPE/MLB flex not inserted properly or damaged on MLB side. All SPE-related functions fail (Pin pad, NFC, Dip Tap).",ca:"1. IE/PME/PD to provide RCCA for flex insertion.\n2. Visual inspection of SPE/MLB flex connection before test.\n3. Check for flex damage during assembly.",dri:"PD Clive / PME Ros / IE Rohani / EE Saman"},
+    {issue:"FT1 | Tamper_Clearance_Check",risk:"med",fa:"[Workmanship] 3 true failures (1.32%). Multiple root causes: zebra rubber not installed (2 units), SPE flex damage (1 unit). SQ Saman confirmed zebra rubber missing on disassembly.",ca:"1. IE to follow T3 practice: zebra rubber separated by piece per slot in tray.\n2. Visual inspection of zebra rubber placement before SPS cage assembly.\n3. Check SPE flex integrity before assembly.",dri:"PD Clive / PME Ros / IE Rohani / EE Saman / MTE Max"},
+    {issue:"FT1 | SoC_Audio_Intensity_right",risk:"low",fa:"[Test Infrastructure] 3 true failures (1.32%). No proper test chamber. Bench test shows speaker sounds normal. MTE Sam repositioned audio receiver — passes on retest.",ca:"Expected to resolve with proper test chamber at EVT (mid-April).",dri:"MTE Sam"},
+    {issue:"FT1 | Inspect_Dip_logo_white_LED",risk:"low",fa:"3 true failures. Under investigation.",ca:"Under monitoring.",dri:"MTE"},
+    {issue:"FT1 | Get_Barcode_Module_SN",risk:"low",fa:"[Workmanship] 3 true failures. Barcode flex not locked properly at piano connector. Reconnecting/swapping barcode module resolves.",ca:"1. IE to add barcode flex lock verification to SOP.\n2. Check piano connector engagement before test.",dri:"PD Candy / PE Aiman"}
   ]
 };
 
@@ -996,7 +1097,7 @@ function buildPareto(id,count){
   applyDataToTable(id,tableDiv);
 }
 
-const PARETO_TABLE_MAP={'spe-fpy':0,'spe-lpy':1,'mlb-fpy':2,'mlb-lpy':3,'sensor-fpy':4,'sensor-lpy':5};
+const PARETO_TABLE_MAP={'spe-fpy':0,'spe-lpy':1,'mlb-fpy':2,'mlb-lpy':3,'sensor-fpy':4,'sensor-lpy':5,'fatp-fpy':6,'fatp-lpy':7};
 
 function applyDataToTable(id,tableDiv){
   const tIdx=PARETO_TABLE_MAP[id];
@@ -1067,8 +1168,8 @@ function exportToExcel(id){
 // ===== GIST SAVE/LOAD SYSTEM =====
 const GIST_ID='28e67a8890c4bce6e9ae617eefa19236';
 const GIST_TOKEN='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';
-const ALL_PARETO_IDS=['spe-fpy','spe-lpy','mlb-fpy','mlb-lpy','sensor-fpy','sensor-lpy'];
-const TABLE_NAMES=['SPE FPY (Retests)','SPE LPY (Failures)','MLB FPY (Retests)','MLB LPY (Failures)','Sensor FPY (Retests)','Sensor LPY (Failures)'];
+const ALL_PARETO_IDS=['spe-fpy','spe-lpy','mlb-fpy','mlb-lpy','sensor-fpy','sensor-lpy','fatp-fpy','fatp-lpy'];
+const TABLE_NAMES=['SPE FPY (Retests)','SPE LPY (Failures)','MLB FPY (Retests)','MLB LPY (Failures)','Sensor FPY (Retests)','Sensor LPY (Failures)','FATP FPY (Retests)','FATP LPY (Failures)'];
 
 function collectAllData(){
   const data={};
@@ -1183,7 +1284,7 @@ function showSection(sectionId,btn){
   document.querySelector('.main-content').scrollTop=0;window.scrollTo(0,0);
   setTimeout(()=>{
     allCharts.forEach(c=>c.resize());
-    const paretoSections=['spe-pareto','mlb-pareto','sensor-pareto'];
+    const paretoSections=['spe-pareto','mlb-pareto','sensor-pareto','fatp-pareto'];
     paretoSections.forEach(ps=>{
       if(sectionId===ps){
         const prefix=ps.replace('-pareto','');
