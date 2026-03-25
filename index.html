@@ -235,7 +235,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Ne
 <button class="nav-btn" onclick="showSection('sensor-overview',this)">
 <span class="nav-icon">📦</span><span class="nav-label">Overview & Trends</span>
 <span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
-<span class="nav-badge nav-badge-yellow" title="FPY 94.0%">FPY 94.0%</span>
+<span class="nav-badge nav-badge-green" title="FPY 94.0% vs 80% target">FPY 94.0%</span>
 <span class="nav-badge nav-badge-green" title="LPY 97.5%">LPY 97.5%</span>
 </span>
 </button>
@@ -311,14 +311,14 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <div class="intel-grid">
 <div class="intel-box">
 <div class="intel-box-title target">🎯 Yield vs Target</div>
-<div class="intel-line"><strong>SPE FPY:</strong> 88.7% <span class="intel-tag tag-met">MET</span></div>
-<div class="intel-line"><strong>SPE LPY:</strong> 97.9% <span class="intel-tag tag-met">MET</span></div>
-<div class="intel-line"><strong>MLB FPY:</strong> 60.2% <span class="intel-tag tag-miss">MISS</span></div>
-<div class="intel-line"><strong>MLB LPY:</strong> 76.4% <span class="intel-tag tag-miss">MISS</span></div>
-<div class="intel-line"><strong>Sensor FPY:</strong> 94.0% <span class="intel-tag tag-met">MET</span></div>
-<div class="intel-line"><strong>Sensor LPY:</strong> 97.5% <span class="intel-tag tag-met">MET</span></div>
-<div class="intel-line"><strong>FATP FPY:</strong> 35.5% <span class="intel-tag tag-miss">MISS</span></div>
-<div class="intel-line"><strong>FATP LPY:</strong> 60.8% <span class="intel-tag tag-miss">MISS</span></div>
+<div class="intel-line"><strong>SPE FPY:</strong> 88.7% vs 80% target <span class="intel-tag tag-met">MET ✓</span></div>
+<div class="intel-line"><strong>SPE LPY:</strong> 97.9% vs 90% target <span class="intel-tag tag-met">MET ✓</span></div>
+<div class="intel-line"><strong>MLB FPY:</strong> 60.2% vs 80% target <span class="intel-tag tag-miss">MISS −19.8pp</span></div>
+<div class="intel-line"><strong>MLB LPY:</strong> 76.4% vs 90% target <span class="intel-tag tag-miss">MISS −13.6pp</span></div>
+<div class="intel-line"><strong>Sensor FPY:</strong> 94.0% vs 80% target <span class="intel-tag tag-met">MET ✓</span></div>
+<div class="intel-line"><strong>Sensor LPY:</strong> 97.5% vs 90% target <span class="intel-tag tag-met">MET ✓</span></div>
+<div class="intel-line"><strong>FATP FPY:</strong> 35.5% vs 70% target <span class="intel-tag tag-miss">MISS −34.5pp</span></div>
+<div class="intel-line"><strong>FATP LPY:</strong> 60.8% vs 80% target <span class="intel-tag tag-miss">MISS −19.2pp</span></div>
 </div>
 <div class="intel-box">
 <div class="intel-box-title alert">🚨 Top Alerts</div>
@@ -360,8 +360,8 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <p>Cut-off: Feb 13, 2026 3:00 PM</p>
 </div>
 <div class="kpi-row">
-<div class="kpi-card"><div class="kpi-label">SPE First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FFD60A">88.7% 😐</div><div class="kpi-sub">Cumulative</div></div>
-<div class="kpi-card"><div class="kpi-label">SPE Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#00D632">97.9% 😊</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">SPE First Pass Yield (FPY)</div><div class="kpi-value" style="color:#00D632">88.7% 😊</div><div class="kpi-sub">Cumulative · Target: 80%</div></div>
+<div class="kpi-card"><div class="kpi-label">SPE Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#00D632">97.9% 😊</div><div class="kpi-sub">Cumulative · Target: 90%</div></div>
 <div class="kpi-card"><div class="kpi-label">SPE Input</div><div class="kpi-value" style="color:#007AFF">428</div><div class="kpi-sub">SMT input</div></div>
 <div class="kpi-card"><div class="kpi-label">SPE Output</div><div class="kpi-value" style="color:#AF52DE">422</div><div class="kpi-sub">Store In</div></div>
 </div>
@@ -443,8 +443,8 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <p>Cut-off: Feb 25, 2026</p>
 </div>
 <div class="kpi-row">
-<div class="kpi-card"><div class="kpi-label">MLB First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">60.2% 😢</div><div class="kpi-sub">Cumulative</div></div>
-<div class="kpi-card"><div class="kpi-label">MLB Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">76.4% 😢</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">MLB First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">60.2% 😢</div><div class="kpi-sub">Cumulative · Target: 80%</div></div>
+<div class="kpi-card"><div class="kpi-label">MLB Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">76.4% 😢</div><div class="kpi-sub">Cumulative · Target: 90%</div></div>
 <div class="kpi-card"><div class="kpi-label">MLB Input</div><div class="kpi-value" style="color:#007AFF">426</div><div class="kpi-sub">SMT input</div></div>
 <div class="kpi-card"><div class="kpi-label">MLB Output</div><div class="kpi-value" style="color:#AF52DE">399</div><div class="kpi-sub">Store In</div></div>
 </div>
@@ -524,8 +524,8 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <p>Cut-off: Feb 12, 2026</p>
 </div>
 <div class="kpi-row">
-<div class="kpi-card"><div class="kpi-label">Sensor First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FFD60A">94.0% 😐</div><div class="kpi-sub">Cumulative</div></div>
-<div class="kpi-card"><div class="kpi-label">Sensor Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#00D632">97.5% 😊</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">Sensor First Pass Yield (FPY)</div><div class="kpi-value" style="color:#00D632">94.0% 😊</div><div class="kpi-sub">Cumulative · Target: 80%</div></div>
+<div class="kpi-card"><div class="kpi-label">Sensor Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#00D632">97.5% 😊</div><div class="kpi-sub">Cumulative · Target: 90%</div></div>
 <div class="kpi-card"><div class="kpi-label">Sensor Input</div><div class="kpi-value" style="color:#007AFF">396</div><div class="kpi-sub">SMT input</div></div>
 <div class="kpi-card"><div class="kpi-label">Sensor Output</div><div class="kpi-value" style="color:#AF52DE">386</div><div class="kpi-sub">Store In</div></div>
 </div>
@@ -602,8 +602,8 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <p>Cut-off: Mar 18, 2026</p>
 </div>
 <div class="kpi-row">
-<div class="kpi-card"><div class="kpi-label">FATP First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">35.5% 😢</div><div class="kpi-sub">Cumulative</div></div>
-<div class="kpi-card"><div class="kpi-label">FATP Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">60.8% 😢</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">35.5% 😢</div><div class="kpi-sub">Cumulative · Target: 70%</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">60.8% 😢</div><div class="kpi-sub">Cumulative · Target: 80%</div></div>
 <div class="kpi-card"><div class="kpi-label">FATP Input</div><div class="kpi-value" style="color:#007AFF">228</div><div class="kpi-sub">Input units</div></div>
 <div class="kpi-card"><div class="kpi-label">FATP Output</div><div class="kpi-value" style="color:#AF52DE">192</div><div class="kpi-sub">Output units</div></div>
 </div>
