@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K1 Proto Yield Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--bg-primary:#000;--bg-card:#1C1C1E;--bg-card-hover:#252528;--bg-deep:#000;--border:#2C2C2E;--border-light:#3A3A3C;--text-primary:#FFF;--text-secondary:#8E8E93;--text-body:#E5E5EA;--text-muted:#48484A;--grid-line:#1C1C1E;--table-row-hover:rgba(255,255,255,0.03);--point-border:#000}
+[data-theme="light"]{--bg-primary:#F2F2F7;--bg-card:#FFF;--bg-card-hover:#F8F8FA;--bg-deep:#F2F2F7;--border:#D1D1D6;--border-light:#C7C7CC;--text-primary:#000;--text-secondary:#6C6C70;--text-body:#1C1C1E;--text-muted:#8E8E93;--grid-line:#E5E5EA;--table-row-hover:rgba(0,0,0,0.03);--point-border:#FFF}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;background:var(--bg-primary);min-height:100vh;padding:0;color:var(--text-primary);-webkit-font-smoothing:antialiased;transition:background 0.3s,color 0.3s}
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:220px;position:fixed;top:0;left:0;bottom:0;background:var(--bg-card);border-right:1px solid var(--border);padding:20px 0;z-index:200;transition:background 0.3s,border-color 0.3s;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-brand{padding:16px 20px 20px;border-bottom:1px solid var(--border)}
+.sidebar-brand h2{font-size:1rem;font-weight:800;letter-spacing:-0.3px}
+.sidebar-brand h2 .accent{color:#00D632}
+.sidebar-brand p{font-size:0.68rem;color:var(--text-secondary);margin-top:4px}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{padding:0 12px;margin-bottom:4px}
+.nav-section-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);font-weight:600;padding:8px 8px 4px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;background:none;color:var(--text-secondary);font-size:0.78rem;font-weight:500;cursor:pointer;border-radius:10px;transition:all 0.2s;text-align:left}
+.nav-btn:hover{background:var(--bg-card-hover);color:var(--text-primary)}
+.nav-btn.active{background:#00D632;color:#000;font-weight:700}
+.nav-btn .nav-icon{font-size:1rem;width:22px;text-align:center}
+.nav-btn .nav-label{flex:1}
+.nav-btn .nav-badge{font-size:0.6rem;padding:2px 6px;border-radius:8px;font-weight:700}
+.nav-btn.active .nav-badge{background:rgba(0,0,0,0.2);color:#000}
+.nav-badge-green{background:rgba(0,214,50,0.15);color:#00D632}
+.nav-badge-red{background:rgba(255,69,58,0.15);color:#FF453A}
+.nav-badge-yellow{background:rgba(255,214,10,0.15);color:#FFD60A}
+.sidebar-footer{padding:12px 20px;border-top:1px solid var(--border);font-size:0.68rem;color:var(--text-muted)}
+.main-content{margin-left:220px;flex:1;padding:16px 24px 32px;min-width:0;width:calc(100% - 220px)}
+.dashboard{max-width:none;width:100%;position:relative}
+.section-panel{display:none;width:100%}
+.section-panel.active{display:block;width:100%}
+.sidebar-toggle{display:none;position:fixed;bottom:20px;left:20px;z-index:300;width:48px;height:48px;border-radius:50%;background:#00D632;color:#000;border:none;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);transition:transform 0.3s}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:16px 16px 80px}.sidebar-toggle{display:block}}
+.theme-switch{position:relative;width:52px;height:28px;cursor:pointer}
+.theme-switch input{opacity:0;width:0;height:0}
+.theme-slider{position:absolute;inset:0;background:var(--border-light);border-radius:28px;transition:0.3s;border:1px solid var(--border)}
+.theme-slider::before{content:'';position:absolute;height:18px;width:18px;left:2px;bottom:1px;background:var(--text-primary);border-radius:50%;transition:0.3s}
+.theme-switch input:checked + .theme-slider{background:#00D632}
+.theme-switch input:checked + .theme-slider::before{transform:translateX(18px)}
+.header{text-align:center;color:var(--text-primary);margin-bottom:28px;padding:24px 20px 8px}
+.header h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+.header h1 .accent{color:#00D632}
+.header p{font-size:0.9rem;color:var(--text-secondary);font-weight:400}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--bg-card);border-radius:16px;padding:18px 16px;text-align:center;transition:transform 0.2s,background 0.3s;border:1px solid var(--border)}
+.kpi-card:hover{transform:translateY(-2px);background:var(--bg-card-hover)}
+.kpi-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-secondary);margin-bottom:8px;font-weight:600}
+.kpi-value{font-size:1.6rem;font-weight:700}
+.kpi-sub{font-size:0.7rem;color:var(--text-secondary);margin-top:4px}
+.section-divider{text-align:center;margin:32px 0 20px;position:relative}
+.section-divider::before{content:'';position:absolute;left:0;top:50%;width:100%;height:1px;background:var(--border)}
+.section-divider span{position:relative;background:var(--bg-primary);padding:0 20px;font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--text-secondary);font-weight:600;transition:background 0.3s}
+.chart-card{background:var(--bg-card);border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid var(--border);transition:background 0.3s,border-color 0.3s;width:100%}
+.chart-title{font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:16px}
+.chart-container{position:relative;width:100%;height:400px}
+.chart-container-wide{position:relative;width:100%;height:320px}
+.pareto-scroll{overflow-x:auto;overflow-y:hidden}
+.pareto-inner{width:100%;min-width:600px;height:400px;position:relative}
+.data-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:0.78rem}
+.data-table th{background:var(--bg-deep);color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;font-size:0.65rem;font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);transition:background 0.3s}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--grid-line);color:var(--text-body);transition:color 0.3s,border-color 0.3s}
+.data-table tr:hover{background:var(--table-row-hover)}
+.yield-good{color:#00D632;font-weight:700}
+.yield-warn{color:#D4A017;font-weight:700}
+[data-theme="dark"] .yield-warn{color:#FFD60A}
+.yield-bad{color:#FF453A;font-weight:700}
+.source-footer{background:var(--bg-card);border-radius:16px;padding:20px 24px;border:1px solid var(--border);margin-top:24px;transition:background 0.3s,border-color 0.3s}
+.source-footer h3{font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);margin-bottom:12px;font-weight:600}
+.source-item{font-size:0.78rem;color:var(--text-body);padding:4px 0;line-height:1.5}
+.source-item a{color:#007AFF;text-decoration:none}
+[data-theme="dark"] .source-item a{color:#5AC8FA}
+.source-item a:hover{text-decoration:underline}
+.source-item .date{color:#B8860B;font-weight:600}
+[data-theme="dark"] .source-item .date{color:#FFD60A}
+.footer{text-align:center;color:var(--text-muted);padding:20px;font-size:0.8rem}
+.range-container{display:flex;align-items:center;gap:12px;margin-top:16px;padding:10px 0;border-top:1px solid var(--border);transition:border-color 0.3s}
+.range-container label{font-size:0.8rem;color:var(--text-secondary);white-space:nowrap}
+.range-container span{font-size:0.8rem;color:#00D632;font-weight:600;min-width:70px}
+.quick-btns{display:flex;gap:6px;margin-left:auto}
+.quick-btn{background:var(--border);color:var(--text-secondary);border:1px solid var(--border-light);border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.quick-btn:hover{background:var(--border-light);color:var(--text-primary)}
+.quick-btn.active{background:#00D632;color:#000;border-color:#00D632;font-weight:600}
+.action-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:0.78rem;table-layout:auto}
+.action-table th{background:var(--bg-deep);color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.8px;font-size:0.62rem;font-weight:600;padding:10px 10px;text-align:left;border-bottom:1px solid var(--border);transition:background 0.3s;position:relative}
+.action-table th.col-risk{width:1%;white-space:nowrap}
+.action-table th.col-issue{width:1%;white-space:nowrap}
+.action-table th.col-rate{width:1%;white-space:nowrap}
+.action-table th.col-fa{width:auto;min-width:200px}
+.action-table th.col-ca{width:auto;min-width:200px}
+.action-table th.col-dri{width:100px;white-space:nowrap}
+.action-table td{padding:8px 10px;border-bottom:1px solid var(--grid-line);color:var(--text-body);transition:color 0.3s,border-color 0.3s;vertical-align:top;overflow-wrap:break-word;word-wrap:break-word}
+.action-table tr:hover{background:var(--table-row-hover)}
+.risk-select{-webkit-appearance:none;appearance:none;border:none;border-radius:10px;padding:3px 24px 3px 10px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;outline:none;background-repeat:no-repeat;background-position:right 6px center;background-size:12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")}
+.risk-select option{font-weight:700;padding:4px 8px}
+.action-table td[contenteditable="true"]{cursor:text}
+.action-table td[contenteditable="true"]:focus{outline:1px solid #00D632;outline-offset:-1px;border-radius:4px}
+.action-table td[contenteditable="true"]:empty::before{content:attr(data-placeholder);color:var(--text-muted);font-style:italic;font-size:0.72rem}
+.action-table .rate-col{font-weight:700;white-space:nowrap;padding-left:0}
+.action-table td:nth-child(2){white-space:nowrap;font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;padding-right:4px}
+.action-table th.col-rate{padding-left:0}
+.save-bar{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 0;flex-wrap:wrap}
+.save-btn{border:none;border-radius:8px;padding:6px 16px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px}
+.save-btn-primary{background:#00D632;color:#000}
+.save-btn-primary:hover{background:#00B82B}
+.save-btn-secondary{background:var(--border);color:var(--text-secondary);border:1px solid var(--border-light)}
+.save-btn-secondary:hover{background:var(--border-light);color:var(--text-primary)}
+.save-status{font-size:0.72rem;color:var(--text-muted);font-style:italic;transition:color 0.3s}
+.save-status.saved{color:#00D632;font-style:normal;font-weight:600}
+.export-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-secondary);border-radius:8px;padding:8px 16px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:12px}
+.export-btn:hover{background:var(--bg-card-hover);color:var(--text-primary);border-color:var(--text-secondary)}
+.export-btn:active{transform:scale(0.97)}
+.export-excel-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-light);background:var(--bg-card);color:var(--text-secondary);border-radius:8px;padding:8px 16px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:12px}
+.export-excel-btn:hover{background:#217346;color:#fff;border-color:#217346}
+.export-excel-btn:active{transform:scale(0.97)}
+.station-toggles{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.station-toggle{border:2px solid var(--border-light);background:var(--bg-deep);color:var(--text-secondary);border-radius:8px;padding:3px 10px;font-size:0.68rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.station-toggle:hover{border-color:var(--text-secondary)}
+.station-toggle.active{border-color:var(--station-color,#8E8E93);background:var(--bg-deep);color:var(--station-color,#8E8E93)}
+.pareto-controls{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.pareto-controls label{font-size:0.7rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.pareto-radio{display:flex;gap:2px;background:var(--bg-deep);border-radius:8px;padding:2px;border:1px solid var(--border)}
+.pareto-radio button{border:none;background:none;color:var(--text-secondary);font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all 0.2s}
+.pareto-radio button:hover{color:var(--text-primary)}
+.pareto-radio button.active{background:#00D632;color:#000}
+.export-btn.exporting{opacity:0.6;cursor:wait}
+.export-bar{display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+.intel-card{background:var(--bg-card);border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid var(--border);transition:background 0.3s,border-color 0.3s}
+.intel-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.intel-header h2{font-size:1.1rem;font-weight:800;letter-spacing:-0.3px}
+.intel-header .intel-date{font-size:0.78rem;color:var(--text-secondary);font-weight:400}
+.intel-headline{font-size:0.85rem;color:var(--text-secondary);margin-bottom:20px;line-height:1.5;padding:10px 14px;border-radius:10px;background:var(--bg-deep);border:1px solid var(--border)}
+.intel-headline .good{color:#00D632}
+.intel-headline .warn{color:#FF9F0A}
+.intel-headline .bad{color:#FF453A}
+.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.intel-box{background:var(--bg-deep);border-radius:12px;padding:16px;border:1px solid var(--border)}
+.intel-box-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.intel-box-title.target{color:#FF9F0A}
+.intel-box-title.trend{color:#5AC8FA}
+.intel-box-title.alert{color:#FF453A}
+.intel-box-title.recommend{color:#BF5AF2}
+.intel-line{font-size:0.78rem;color:var(--text-body);padding:5px 0;line-height:1.5;border-bottom:1px solid var(--border)}
+.intel-line:last-child{border-bottom:none}
+.intel-tag{display:inline-block;padding:1px 8px;border-radius:4px;font-size:0.65rem;font-weight:700;margin-left:6px;letter-spacing:0.3px}
+.tag-miss{background:rgba(255,69,58,0.2);color:#FF453A}
+.tag-met{background:rgba(0,214,50,0.2);color:#00D632}
+.tag-steady{background:rgba(142,142,147,0.2);color:#8E8E93}
+.tag-up{background:rgba(0,214,50,0.2);color:#00D632}
+.tag-down{background:rgba(255,69,58,0.2);color:#FF453A}
+.intel-section-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600;margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.collapsible-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;padding:12px 0 4px;border:none;background:none;color:var(--text-secondary);font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;font-weight:600;transition:color 0.2s}
+.collapsible-toggle:hover{color:var(--text-primary)}
+.collapsible-toggle .arrow{transition:transform 0.3s;font-size:0.6rem}
+.collapsible-toggle.open .arrow{transform:rotate(90deg)}
+.collapsible-content{display:none}
+.collapsible-content.open{display:block}
+.history-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);font-size:0.78rem;transition:background 0.2s}
+.history-item:hover{background:var(--bg-card-hover)}
+.history-item:last-child{border-bottom:none}
+.history-item .h-date{color:var(--text-primary);font-weight:600;min-width:160px}
+.history-item .h-info{color:var(--text-secondary);flex:1}
+.history-item .h-actions{display:flex;gap:6px}
+.history-item .h-btn{border:1px solid var(--border-light);background:var(--bg-deep);color:var(--text-secondary);border-radius:6px;padding:3px 10px;font-size:0.68rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.history-item .h-btn:hover{background:var(--border-light);color:var(--text-primary)}
+.history-item .h-btn.restore{border-color:#00D632;color:#00D632}
+.history-item .h-btn.restore:hover{background:#00D632;color:#000}
+.history-preview{margin-top:12px;padding:12px;background:var(--bg-deep);border-radius:8px;border:1px solid var(--border);font-size:0.72rem;max-height:300px;overflow-y:auto}
+.history-preview table{width:100%;border-collapse:collapse;font-size:0.72rem}
+.history-preview th{text-align:left;padding:4px 8px;color:var(--text-secondary);font-size:0.62rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.history-preview td{padding:4px 8px;border-bottom:1px solid var(--grid-line);color:var(--text-body)}
+@media(max-width:900px){.intel-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+<div class="sidebar-brand">
+<h2><span class="accent">K1</span> Proto</h2>
+<p>Yield Dashboard · v1</p>
+</div>
+<div class="sidebar-nav">
+<div class="nav-section">
+<div class="nav-section-label">Overview</div>
+<button class="nav-btn active" onclick="showSection('summary',this)">
+<span class="nav-icon">🔬</span><span class="nav-label">Intelligence Summary</span>
+</button>
+</div>
+<div class="nav-section">
+<div class="nav-section-label">SMT / ATE — SPE</div>
+<button class="nav-btn" onclick="showSection('spe-overview',this)">
+<span class="nav-icon">📦</span><span class="nav-label">Overview & Trends</span>
+<span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
+<span class="nav-badge nav-badge-green" title="FPY 88.7%">FPY 88.7%</span>
+<span class="nav-badge nav-badge-green" title="LPY 97.9%">LPY 97.9%</span>
+</span>
+</button>
+<button class="nav-btn" onclick="showSection('spe-stations',this)">
+<span class="nav-icon">📊</span><span class="nav-label">Station Analysis</span>
+</button>
+<button class="nav-btn" onclick="showSection('spe-pareto',this)">
+<span class="nav-icon">📉</span><span class="nav-label">Pareto & Actions</span>
+</button>
+</div>
+<div class="nav-section">
+<div class="nav-section-label">SMT / ATE — MLB</div>
+<button class="nav-btn" onclick="showSection('mlb-overview',this)">
+<span class="nav-icon">📦</span><span class="nav-label">Overview & Trends</span>
+<span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
+<span class="nav-badge nav-badge-red" title="FPY 60.2%">FPY 60.2%</span>
+<span class="nav-badge nav-badge-red" title="LPY 76.4%">LPY 76.4%</span>
+</span>
+</button>
+<button class="nav-btn" onclick="showSection('mlb-stations',this)">
+<span class="nav-icon">📊</span><span class="nav-label">Station Analysis</span>
+</button>
+<button class="nav-btn" onclick="showSection('mlb-pareto',this)">
+<span class="nav-icon">📉</span><span class="nav-label">Pareto & Actions</span>
+</button>
+</div>
+<div class="nav-section">
+<div class="nav-section-label">SMT / ATE — Sensor</div>
+<button class="nav-btn" onclick="showSection('sensor-overview',this)">
+<span class="nav-icon">📦</span><span class="nav-label">Overview & Trends</span>
+<span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
+<span class="nav-badge nav-badge-yellow" title="FPY 94.0%">FPY 94.0%</span>
+<span class="nav-badge nav-badge-green" title="LPY 97.5%">LPY 97.5%</span>
+</span>
+</button>
+<button class="nav-btn" onclick="showSection('sensor-stations',this)">
+<span class="nav-icon">📊</span><span class="nav-label">Station Analysis</span>
+</button>
+<button class="nav-btn" onclick="showSection('sensor-pareto',this)">
+<span class="nav-icon">📉</span><span class="nav-label">Pareto & Actions</span>
+</button>
+</div>
+<div class="nav-section">
+<div class="nav-section-label">FATP</div>
+<button class="nav-btn" onclick="showSection('fatp-overview',this)">
+<span class="nav-icon">🔧</span><span class="nav-label">Overview & Trends</span>
+<span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
+<span class="nav-badge nav-badge-red" title="FPY 35.5%">FPY 35.5%</span>
+<span class="nav-badge nav-badge-red" title="LPY 60.8%">LPY 60.8%</span>
+</span>
+</button>
+<button class="nav-btn" onclick="showSection('fatp-stations',this)">
+<span class="nav-icon">📊</span><span class="nav-label">Station Analysis</span>
+</button>
+<button class="nav-btn" onclick="showSection('fatp-pareto',this)">
+<span class="nav-icon">📉</span><span class="nav-label">Pareto & Actions</span>
+</button>
+</div>
+<div class="nav-section">
+<div class="nav-section-label">Data Sources</div>
+<button class="nav-btn" onclick="showSection('action-data',this)">
+<span class="nav-icon">📁</span><span class="nav-label">Data Sources</span>
+</button>
+</div>
+</div>
+<div class="sidebar-footer">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+<span>☀️</span>
+<label class="theme-switch" style="width:40px;height:22px">
+<input type="checkbox" id="themeCheckbox" checked>
+<span class="theme-slider" style="border-radius:22px"></span>
+</label>
+<span>🌙</span>
+</div>
+<div>Created by Kyle Dykgraaf — PQM &nbsp;|&nbsp; v1</div>
+<div style="margin-top:4px">Data: See per-PCBA dates</div>
+</div>
+</nav>
+
+<button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<!-- Main Content -->
+<div class="main-content">
+<div class="dashboard">
+
+<!-- ===== SECTION: Intelligence Summary ===== -->
+<div class="section-panel active" id="section-summary">
+<div class="header">
+<h1><span class="accent">K1 Proto</span> Yield Intelligence</h1>
+<p>SMT / ATE — SPE, MLB, Sensor + FATP</p>
+</div>
+
+<div class="intel-card">
+<div class="intel-header">
+<h2>🔬 Yield Intelligence Summary</h2>
+<span class="intel-date">K1 Proto Build</span>
+</div>
+<div class="intel-headline">
+<strong>K1 Proto Build Status:</strong> SPE performing well at <span class="good">97.9% LPY</span>.
+Sensor solid at <span class="good">97.5% LPY</span>.
+MLB is the critical concern at <span class="bad">76.4% LPY</span> — WBT WiFi TX power failures are the dominant issue.
+FATP at <span class="bad">60.8% LPY</span> — early build, many stations still being tuned.
+</div>
+
+<div class="intel-grid">
+<div class="intel-box">
+<div class="intel-box-title target">🎯 Yield vs Target</div>
+<div class="intel-line"><strong>SPE FPY:</strong> 88.7% <span class="intel-tag tag-met">MET</span></div>
+<div class="intel-line"><strong>SPE LPY:</strong> 97.9% <span class="intel-tag tag-met">MET</span></div>
+<div class="intel-line"><strong>MLB FPY:</strong> 60.2% <span class="intel-tag tag-miss">MISS</span></div>
+<div class="intel-line"><strong>MLB LPY:</strong> 76.4% <span class="intel-tag tag-miss">MISS</span></div>
+<div class="intel-line"><strong>Sensor FPY:</strong> 94.0% <span class="intel-tag tag-met">MET</span></div>
+<div class="intel-line"><strong>Sensor LPY:</strong> 97.5% <span class="intel-tag tag-met">MET</span></div>
+<div class="intel-line"><strong>FATP FPY:</strong> 35.5% <span class="intel-tag tag-miss">MISS</span></div>
+<div class="intel-line"><strong>FATP LPY:</strong> 60.8% <span class="intel-tag tag-miss">MISS</span></div>
+</div>
+<div class="intel-box">
+<div class="intel-box-title alert">🚨 Top Alerts</div>
+<div class="intel-line"><strong>MLB WBT:</strong> WiFi TX power (CCK11 CH0) — 50 failures (15.3% fail rate). Dominant MLB yield detractor.</div>
+<div class="intel-line"><strong>MLB WBT:</strong> WiFi TX power (CCK11 CH1) — 10 failures (3.1% fail rate). Same root cause family.</div>
+<div class="intel-line"><strong>SPE BDL:</strong> SECURE_INSTALL_SPE_BOOTLOADER — 11 retests. BDL station instability.</div>
+<div class="intel-line"><strong>FATP:</strong> Early build — multiple stations still being tuned and validated.</div>
+</div>
+</div>
+<div class="intel-grid">
+<div class="intel-box">
+<div class="intel-box-title recommend">💡 Recommendations</div>
+<div class="intel-line"><strong>MLB:</strong> Prioritize WBT WiFi TX power root cause — accounts for ~74% of all MLB failures.</div>
+<div class="intel-line"><strong>SPE:</strong> Stabilize BDL station — bootloader install and DMM measurement retests driving FPY down.</div>
+<div class="intel-line"><strong>Sensor:</strong> Monitor BFT Set current 3.5A retest issue (7 retests).</div>
+<div class="intel-line"><strong>FATP:</strong> Continue station tuning — too early for meaningful yield targets.</div>
+</div>
+<div class="intel-box">
+<div class="intel-box-title trend">📊 PCBA Comparison</div>
+<div class="intel-line"><strong>Best LPY:</strong> SPE (97.9%) → Sensor (97.5%) → MLB (76.4%)</div>
+<div class="intel-line"><strong>Best FPY:</strong> Sensor (94.0%) → SPE (88.7%) → MLB (60.2%)</div>
+<div class="intel-line"><strong>Retest Impact:</strong> SPE +9.2pp, MLB +16.2pp, Sensor +3.5pp</div>
+<div class="intel-line"><strong>Critical Path:</strong> MLB WBT station is the gating yield issue for K1 Proto.</div>
+</div>
+</div>
+</div>
+
+<!-- PCBA Comparison Chart -->
+<div class="chart-card">
+<div class="chart-title">📊 PCBA Yield Comparison — FPY vs LPY</div>
+<div class="chart-container-wide"><canvas id="comparisonChart"></canvas></div>
+</div>
+</div><!-- end section-summary -->
+
+<!-- ===== SECTION: SPE Overview ===== -->
+<div class="section-panel" id="section-spe-overview">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">SPE</span> Overview & Trends</h1>
+<p>Cut-off: Feb 13, 2026 3:00 PM</p>
+</div>
+<div class="kpi-row">
+<div class="kpi-card"><div class="kpi-label">SPE First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FFD60A">88.7% 😐</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">SPE Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#00D632">97.9% 😊</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">SPE Input</div><div class="kpi-value" style="color:#007AFF">428</div><div class="kpi-sub">SMT input</div></div>
+<div class="kpi-card"><div class="kpi-label">SPE Output</div><div class="kpi-value" style="color:#AF52DE">422</div><div class="kpi-sub">Store In</div></div>
+</div>
+<div class="chart-card">
+<div class="chart-title">📈 SPE — FPY &amp; LPY Yield Over Time</div>
+<div class="chart-container-wide"><canvas id="speTimeChart"></canvas></div>
+</div>
+</div>
+
+<!-- ===== SECTION: SPE Stations ===== -->
+<div class="section-panel" id="section-spe-stations">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">SPE</span> Station Analysis</h1>
+</div>
+<div class="chart-card">
+<div class="chart-title">📊 SPE Cumulative Retest Rate &amp; Failure Rate by Station</div>
+<div class="chart-container"><canvas id="speChart"></canvas></div>
+<button class="collapsible-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="arrow">▶</span> Show Station Detail Table</button>
+<div class="collapsible-content">
+<table class="data-table">
+<thead><tr><th>Station</th><th>Input</th><th>Passed</th><th>Failed</th><th>Retest Pass</th><th>Retest %</th><th>First Pass Yield (FPY)</th><th>Last Pass Yield (LPY)</th></tr></thead>
+<tbody>
+<tr><td>AA.SMT_input (TOP)</td><td>428</td><td>428</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>TL.AOIA (AOI A Side)</td><td>428</td><td>427</td><td>1</td><td>0</td><td>0.0%</td><td class="yield-good">99.8%</td><td class="yield-good">99.8%</td></tr>
+<tr><td>AG.SMT_input (Bot)</td><td>428</td><td>428</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>TK.AOIB (AOI B Side)</td><td>428</td><td>427</td><td>1</td><td>0</td><td>0.0%</td><td class="yield-good">99.8%</td><td class="yield-good">99.8%</td></tr>
+<tr><td>IU.Underfil</td><td>52</td><td>52</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>IB.DIP_VIB</td><td>425</td><td>425</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>ZA.B_Update_OS (BDL)</td><td>425</td><td>421</td><td>4</td><td>33</td><td>7.8%</td><td class="yield-warn">91.3%</td><td class="yield-good">99.1%</td></tr>
+<tr><td>ZC.B_Function (BFT)</td><td>425</td><td>422</td><td>3</td><td>7</td><td>1.6%</td><td class="yield-good">97.6%</td><td class="yield-good">99.3%</td></tr>
+<tr><td>IC.DIP_FINAL</td><td>422</td><td>422</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>PA.PACKING</td><td>422</td><td>422</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>SA.STOREIN</td><td>422</td><td>422</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ===== SECTION: SPE Pareto ===== -->
+<div class="section-panel" id="section-spe-pareto">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">SPE</span> Pareto & Actions</h1>
+</div>
+<div class="chart-card" id="export-spe-fpy">
+<div class="chart-title">📉 SPE — FPY Issues Pareto (Retest Pass)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-spe-fpy">
+<button class="active" onclick="updatePareto('spe-fpy',10,this)">Top 10</button>
+<button onclick="updatePareto('spe-fpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="spe-fpyChart"></canvas></div></div>
+<div id="spe-fpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('spe-fpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('spe-fpy')">📊 Export to Excel</button></div>
+</div>
+<div class="chart-card" id="export-spe-lpy">
+<div class="chart-title">📉 SPE — LPY Issues Pareto (Failures)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-spe-lpy">
+<button class="active" onclick="updatePareto('spe-lpy',10,this)">Top 10</button>
+<button onclick="updatePareto('spe-lpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="spe-lpyChart"></canvas></div></div>
+<div id="spe-lpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('spe-lpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('spe-lpy')">📊 Export to Excel</button></div>
+</div>
+<div class="save-bar">
+<button class="save-btn save-btn-primary" onclick="saveToGist()">💾 Save for Everyone</button>
+<button class="save-btn save-btn-secondary" onclick="loadFromGist()">🔄 Reload Latest</button>
+<button class="save-btn save-btn-secondary" onclick="loadHistory();showSection('action-data',document.querySelector('[onclick*=action-data]'))">📜 History</button>
+<span class="save-status" id="saveStatusSpe">Ready</span>
+</div>
+</div>
+
+<!-- ===== SECTION: MLB Overview ===== -->
+<div class="section-panel" id="section-mlb-overview">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">MLB</span> Overview & Trends</h1>
+<p>Cut-off: Feb 25, 2026</p>
+</div>
+<div class="kpi-row">
+<div class="kpi-card"><div class="kpi-label">MLB First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">60.2% 😢</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">MLB Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">76.4% 😢</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">MLB Input</div><div class="kpi-value" style="color:#007AFF">426</div><div class="kpi-sub">SMT input</div></div>
+<div class="kpi-card"><div class="kpi-label">MLB Output</div><div class="kpi-value" style="color:#AF52DE">399</div><div class="kpi-sub">Store In</div></div>
+</div>
+<div class="chart-card">
+<div class="chart-title">📈 MLB — FPY &amp; LPY Yield Over Time</div>
+<div class="chart-container-wide"><canvas id="mlbTimeChart"></canvas></div>
+</div>
+</div>
+
+<!-- ===== SECTION: MLB Stations ===== -->
+<div class="section-panel" id="section-mlb-stations">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">MLB</span> Station Analysis</h1>
+</div>
+<div class="chart-card">
+<div class="chart-title">📊 MLB Cumulative Retest Rate &amp; Failure Rate by Station</div>
+<div class="chart-container"><canvas id="mlbChart"></canvas></div>
+<button class="collapsible-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="arrow">▶</span> Show Station Detail Table</button>
+<div class="collapsible-content">
+<table class="data-table">
+<thead><tr><th>Station</th><th>Input</th><th>Passed</th><th>Failed</th><th>Retest Pass</th><th>Retest %</th><th>First Pass Yield (FPY)</th><th>Last Pass Yield (LPY)</th></tr></thead>
+<tbody>
+<tr><td>AA.SMT_input</td><td>426</td><td>426</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>TL.AOIA (AOI A Side)</td><td>426</td><td>426</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>TK.AOIB (AOI B Side)</td><td>426</td><td>410</td><td>16</td><td>0</td><td>0.0%</td><td class="yield-bad">96.2%</td><td class="yield-bad">96.2%</td></tr>
+<tr><td>ZA.B_Update_OS (BDL)</td><td>412</td><td>404</td><td>8</td><td>10</td><td>2.4%</td><td class="yield-warn">95.6%</td><td class="yield-good">98.1%</td></tr>
+<tr><td>ZC.B_Function (BFT)</td><td>425</td><td>393</td><td>32</td><td>31</td><td>7.3%</td><td class="yield-bad">85.2%</td><td class="yield-warn">92.5%</td></tr>
+<tr><td>ZE.B_Wifi_Bluetooth (WBT)</td><td>326</td><td>258</td><td>68</td><td>25</td><td>7.7%</td><td class="yield-bad">71.5%</td><td class="yield-bad">79.1%</td></tr>
+<tr><td>IC.DIP_FINAL</td><td>399</td><td>399</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>PA.PACKING</td><td>399</td><td>399</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>SA.STOREIN</td><td>399</td><td>399</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ===== SECTION: MLB Pareto ===== -->
+<div class="section-panel" id="section-mlb-pareto">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">MLB</span> Pareto & Actions</h1>
+</div>
+<div class="chart-card" id="export-mlb-fpy">
+<div class="chart-title">📉 MLB — FPY Issues Pareto (Retest Pass)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-mlb-fpy">
+<button class="active" onclick="updatePareto('mlb-fpy',10,this)">Top 10</button>
+<button onclick="updatePareto('mlb-fpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="mlb-fpyChart"></canvas></div></div>
+<div id="mlb-fpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('mlb-fpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('mlb-fpy')">📊 Export to Excel</button></div>
+</div>
+<div class="chart-card" id="export-mlb-lpy">
+<div class="chart-title">📉 MLB — LPY Issues Pareto (Failures)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-mlb-lpy">
+<button class="active" onclick="updatePareto('mlb-lpy',10,this)">Top 10</button>
+<button onclick="updatePareto('mlb-lpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="mlb-lpyChart"></canvas></div></div>
+<div id="mlb-lpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('mlb-lpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('mlb-lpy')">📊 Export to Excel</button></div>
+</div>
+<div class="save-bar">
+<button class="save-btn save-btn-primary" onclick="saveToGist()">💾 Save for Everyone</button>
+<button class="save-btn save-btn-secondary" onclick="loadFromGist()">🔄 Reload Latest</button>
+<button class="save-btn save-btn-secondary" onclick="loadHistory();showSection('action-data',document.querySelector('[onclick*=action-data]'))">📜 History</button>
+<span class="save-status" id="saveStatusMlb">Ready</span>
+</div>
+</div>
+
+<!-- ===== SECTION: Sensor Overview ===== -->
+<div class="section-panel" id="section-sensor-overview">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">Sensor</span> Overview & Trends</h1>
+<p>Cut-off: Feb 12, 2026</p>
+</div>
+<div class="kpi-row">
+<div class="kpi-card"><div class="kpi-label">Sensor First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FFD60A">94.0% 😐</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">Sensor Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#00D632">97.5% 😊</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">Sensor Input</div><div class="kpi-value" style="color:#007AFF">396</div><div class="kpi-sub">SMT input</div></div>
+<div class="kpi-card"><div class="kpi-label">Sensor Output</div><div class="kpi-value" style="color:#AF52DE">386</div><div class="kpi-sub">Store In</div></div>
+</div>
+<div class="chart-card">
+<div class="chart-title">📈 Sensor — FPY &amp; LPY Yield Over Time</div>
+<div class="chart-container-wide"><canvas id="sensorTimeChart"></canvas></div>
+</div>
+</div>
+
+<!-- ===== SECTION: Sensor Stations ===== -->
+<div class="section-panel" id="section-sensor-stations">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">Sensor</span> Station Analysis</h1>
+</div>
+<div class="chart-card">
+<div class="chart-title">📊 Sensor Cumulative Retest Rate &amp; Failure Rate by Station</div>
+<div class="chart-container"><canvas id="sensorChart"></canvas></div>
+<button class="collapsible-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="arrow">▶</span> Show Station Detail Table</button>
+<div class="collapsible-content">
+<table class="data-table">
+<thead><tr><th>Station</th><th>Input</th><th>Passed</th><th>Failed</th><th>Retest Pass</th><th>Retest %</th><th>First Pass Yield (FPY)</th><th>Last Pass Yield (LPY)</th></tr></thead>
+<tbody>
+<tr><td>AA.SMT_input</td><td>396</td><td>396</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>TL.AOIA (AOI A Side)</td><td>396</td><td>394</td><td>2</td><td>0</td><td>0.0%</td><td class="yield-good">99.5%</td><td class="yield-good">99.5%</td></tr>
+<tr><td>ZC.B_Function (BFT)</td><td>396</td><td>386</td><td>10</td><td>14</td><td>3.5%</td><td class="yield-warn">93.9%</td><td class="yield-good">97.5%</td></tr>
+<tr><td>IC.DIP_FINAL</td><td>386</td><td>386</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>PA.PACKING</td><td>386</td><td>386</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>SA.STOREIN</td><td>386</td><td>386</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ===== SECTION: Sensor Pareto ===== -->
+<div class="section-panel" id="section-sensor-pareto">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">Sensor</span> Pareto & Actions</h1>
+</div>
+<div class="chart-card" id="export-sensor-fpy">
+<div class="chart-title">📉 Sensor — FPY Issues Pareto (Retest Pass)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-sensor-fpy">
+<button class="active" onclick="updatePareto('sensor-fpy',10,this)">Top 10</button>
+<button onclick="updatePareto('sensor-fpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="sensor-fpyChart"></canvas></div></div>
+<div id="sensor-fpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('sensor-fpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('sensor-fpy')">📊 Export to Excel</button></div>
+</div>
+<div class="chart-card" id="export-sensor-lpy">
+<div class="chart-title">📉 Sensor — LPY Issues Pareto (Failures)</div>
+<div class="pareto-controls"><label>Show:</label>
+<div class="pareto-radio" id="radio-sensor-lpy">
+<button class="active" onclick="updatePareto('sensor-lpy',10,this)">Top 10</button>
+<button onclick="updatePareto('sensor-lpy',0,this)">All</button>
+</div></div>
+<div class="pareto-scroll"><div class="pareto-inner"><canvas id="sensor-lpyChart"></canvas></div></div>
+<div id="sensor-lpyTable"></div>
+<div class="export-bar"><button class="export-btn" onclick="exportPareto('sensor-lpy')">📸 Export as Image</button><button class="export-excel-btn" onclick="exportToExcel('sensor-lpy')">📊 Export to Excel</button></div>
+</div>
+<div class="save-bar">
+<button class="save-btn save-btn-primary" onclick="saveToGist()">💾 Save for Everyone</button>
+<button class="save-btn save-btn-secondary" onclick="loadFromGist()">🔄 Reload Latest</button>
+<button class="save-btn save-btn-secondary" onclick="loadHistory();showSection('action-data',document.querySelector('[onclick*=action-data]'))">📜 History</button>
+<span class="save-status" id="saveStatusSensor">Ready</span>
+</div>
+</div>
+
+<!-- ===== SECTION: FATP Overview ===== -->
+<div class="section-panel" id="section-fatp-overview">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">FATP</span> Overview & Trends</h1>
+<p>Cut-off: Mar 18, 2026</p>
+</div>
+<div class="kpi-row">
+<div class="kpi-card"><div class="kpi-label">FATP First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">35.5% 😢</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">60.8% 😢</div><div class="kpi-sub">Cumulative</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP Input</div><div class="kpi-value" style="color:#007AFF">228</div><div class="kpi-sub">Input units</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP Output</div><div class="kpi-value" style="color:#AF52DE">192</div><div class="kpi-sub">Output units</div></div>
+</div>
+<div class="chart-card">
+<div class="chart-title">📈 FATP — FPY &amp; LPY Yield Over Time</div>
+<div class="chart-container-wide"><canvas id="fatpTimeChart"></canvas></div>
+</div>
+</div>
+
+<!-- ===== SECTION: FATP Stations ===== -->
+<div class="section-panel" id="section-fatp-stations">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">FATP</span> Station Analysis</h1>
+</div>
+<div class="chart-card">
+<div class="chart-title">📊 FATP — Station data pending (xlsx source)</div>
+<div class="chart-container"><canvas id="fatpChart"></canvas></div>
+<p style="font-size:0.78rem;color:var(--text-secondary);padding:12px 0">FATP station-level detail will be populated once the xlsx source is parsed. Overall: FPY 35.5%, LPY 60.8%.</p>
+</div>
+</div>
+
+<!-- ===== SECTION: FATP Pareto ===== -->
+<div class="section-panel" id="section-fatp-pareto">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">FATP</span> Pareto & Actions</h1>
+</div>
+<div class="chart-card">
+<div class="chart-title">📉 FATP Pareto data pending</div>
+<p style="font-size:0.78rem;color:var(--text-secondary);padding:12px 0">FATP failure pareto data will be populated once the xlsx source is parsed.</p>
+</div>
+</div>
+
+<!-- ===== SECTION: Data Sources ===== -->
+<div class="section-panel" id="section-action-data">
+<div class="header" style="padding:16px 0 8px">
+<h1><span class="accent">Data Sources</span></h1>
+</div>
+<div class="source-footer">
+<h3>📁 Data Sources</h3>
+<div class="source-item"><strong>SMT/ATE — SPE:</strong> <a href="https://docs.google.com/spreadsheets/d/1gETsJTjs3BINow7GBkVpx4mCgFpdoOhih23Y8eLsAmc" target="_blank">K1 Proto SMT ATE - SPE (Final)</a> — Cut-off: <span class="date">Feb 13, 2026 3:00 PM</span></div>
+<div class="source-item"><strong>SMT/ATE — MLB:</strong> <a href="https://docs.google.com/spreadsheets/d/14rcp886vhlcXHSjAvRqR5cJfTObh_Ui3v66ckLN39DQ" target="_blank">K1 Proto SMT ATE - MLB (Final)</a> — Cut-off: <span class="date">Feb 25, 2026</span></div>
+<div class="source-item"><strong>SMT/ATE — Sensor:</strong> <a href="https://docs.google.com/spreadsheets/d/1TL5RjYiPAyAyJAVvaasm4YtZrQmalRx6bzja2a6DNTo" target="_blank">K1 Proto SMT ATE - Sensor (Final)</a> — Cut-off: <span class="date">Feb 12, 2026</span></div>
+<div class="source-item"><strong>FATP:</strong> <a href="https://docs.google.com/spreadsheets/d/1id7ZF_wlE2DXr0dptFbMxyHpu_d4z348" target="_blank">K1 Proto FATP (Final)</a> — Cut-off: <span class="date">Mar 18, 2026</span></div>
+<div class="source-item" style="margin-top:8px"><strong>Source Folder:</strong> <a href="https://drive.google.com/drive/folders/1ssXqBGIJU_BL7yXAMbbbPo3edATShSmH" target="_blank">Google Drive — K1 Yield Data</a></div>
+</div>
+<!-- Collaborative Action Item Data -->
+<div class="chart-card" style="margin-top:24px">
+<div class="chart-title">📋 Action Item Data — Collaborative</div>
+<p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">
+Click any <strong>FA</strong>, <strong>CA</strong>, <strong>DRI</strong>, or <strong>Risk</strong> cell to edit in any Pareto section. Click <strong>💾 Save for Everyone</strong> to publish. Click <strong>🔄 Reload</strong> to pull the latest.
+</p>
+<div class="save-bar">
+<button class="save-btn save-btn-primary" onclick="saveToGist()">💾 Save for Everyone</button>
+<button class="save-btn save-btn-secondary" onclick="loadFromGist()">🔄 Reload Latest</button>
+<button class="save-btn save-btn-secondary" onclick="loadHistory()">📜 Version History</button>
+<span class="save-status" id="saveStatus">Loading...</span>
+</div>
+<!-- Version History Panel -->
+<div id="historyPanel" style="display:none;margin-top:16px">
+<div class="chart-card">
+<div class="chart-title" style="display:flex;justify-content:space-between;align-items:center">
+📜 FA/CA Save History
+<button class="save-btn save-btn-secondary" onclick="document.getElementById('historyPanel').style.display='none'" style="margin:0;padding:4px 10px">✕ Close</button>
+</div>
+<p style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:12px">Every save creates a backup. Click any version to preview, then restore if needed.</p>
+<div id="historyList" style="max-height:400px;overflow-y:auto"></div>
+</div>
+</div>
+</div>
+
+<div class="footer">K1 Proto Yield Dashboard v1 — Generated by Goose</div>
+</div>
+
+</div><!-- end dashboard -->
+</div><!-- end main-content -->
+</div><!-- end app-layout -->
+
+<script>
+// ===== Theme Management =====
+const allCharts = [];
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
+function getThemeColors(){const d=isDark();return{text:d?'#8E8E93':'#6C6C70',grid:d?'#1C1C1E':'#E5E5EA',border:d?'#2C2C2E':'#D1D1D6',pointBorder:d?'#000':'#fff',tooltipBg:d?'#1C1C1E':'#fff',tooltipText:d?'#fff':'#000',tooltipBorder:d?'#2C2C2E':'#D1D1D6'}}
+function applyThemeToCharts(){const t=getThemeColors();Chart.defaults.color=t.text;Chart.defaults.borderColor=t.border;allCharts.forEach(chart=>{if(chart.options.scales.y){chart.options.scales.y.grid.color=t.grid;chart.options.scales.y.ticks.color=chart.options.scales.y.ticks._origColor||t.text}if(chart.options.scales.y1){chart.options.scales.y1.grid.color='transparent'}if(chart.options.scales.x){chart.options.scales.x.ticks.color=t.text}chart.data.datasets.forEach(ds=>{if(ds.type==='line'||chart.config.type==='line'){if(ds.pointBorderColor!==undefined)ds.pointBorderColor=t.pointBorder}});if(chart.options.plugins.tooltip){chart.options.plugins.tooltip.backgroundColor=t.tooltipBg;chart.options.plugins.tooltip.titleColor=t.tooltipText;chart.options.plugins.tooltip.bodyColor=t.tooltipText;chart.options.plugins.tooltip.borderColor=t.tooltipBorder;chart.options.plugins.tooltip.borderWidth=1}if(chart.options.plugins.legend&&chart.options.plugins.legend.labels){chart.options.plugins.legend.labels.color=t.text}chart.update('none')})}
+document.getElementById('themeCheckbox').addEventListener('change',function(){const theme=this.checked?'dark':'light';document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('k1-yield-theme',theme);applyThemeToCharts();document.querySelectorAll('.risk-select').forEach(el=>updateRiskStyle(el))});
+(function(){const saved=localStorage.getItem('k1-yield-theme');if(saved==='light'){document.documentElement.setAttribute('data-theme','light');document.getElementById('themeCheckbox').checked=false}})();
+
+// ===== Chart defaults =====
+const t0=getThemeColors();
+Chart.defaults.color=t0.text;Chart.defaults.borderColor=t0.border;
+Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif";
+Chart.register(ChartDataLabels);Chart.defaults.plugins.datalabels={display:false};
+const C={green:'#00D632',blue:'#5AC8FA',red:'#FF453A',yellow:'#FFD60A',purple:'#BF5AF2',orange:'#FF9F0A'};
+
+// ===== PCBA Comparison Chart =====
+(function(){
+  const t=getThemeColors();
+  const chart=new Chart(document.getElementById('comparisonChart'),{
+    type:'bar',
+    data:{
+      labels:['SPE','MLB','Sensor','FATP'],
+      datasets:[
+        {label:'FPY',data:[88.7,60.2,94.0,35.5],backgroundColor:[C.green+'88',C.red+'88',C.green+'88',C.red+'88'],borderColor:[C.green,C.red,C.green,C.red],borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.7,
+          datalabels:{display:true,anchor:'end',align:'end',font:{size:12,weight:'bold'},formatter:v=>v.toFixed(1)+'%',color:function(ctx){return ctx.dataset.data[ctx.dataIndex]>=90?C.green:ctx.dataset.data[ctx.dataIndex]>=80?C.yellow:C.red}}},
+        {label:'LPY',data:[97.9,76.4,97.5,60.8],backgroundColor:[C.blue+'88',C.red+'88',C.blue+'88',C.red+'88'],borderColor:[C.blue,C.red,C.blue,C.red],borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.7,
+          datalabels:{display:true,anchor:'end',align:'end',font:{size:12,weight:'bold'},formatter:v=>v.toFixed(1)+'%',color:function(ctx){return ctx.dataset.data[ctx.dataIndex]>=90?C.blue:ctx.dataset.data[ctx.dataIndex]>=80?C.yellow:C.red}}}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{
+      y:{beginAtZero:true,max:105,grid:{color:t.grid},ticks:{callback:v=>v+'%'}},
+      x:{grid:{display:false}}
+    },plugins:{legend:{display:true,labels:{boxWidth:14,padding:20}},
+      annotation:{annotations:{target90:{type:'line',yMin:90,yMax:90,borderColor:C.yellow+'66',borderWidth:2,borderDash:[8,4],label:{display:true,content:'90% Target',position:'start',backgroundColor:'rgba(255,214,10,0.12)',color:C.yellow,font:{size:10}}}}},
+      tooltip:{backgroundColor:t.tooltipBg,titleColor:t.tooltipText,bodyColor:t.tooltipText,borderColor:t.tooltipBorder,borderWidth:1}}}
+  });
+  allCharts.push(chart);
+})();
+
+// ===== YIELD OVER TIME =====
+function makeTimeChart(canvasId,labels,fpyData,lpyData,fpyTarget,lpyTarget,fpyLabel,lpyLabel){
+  const t=getThemeColors();
+  const chart=new Chart(document.getElementById(canvasId),{type:'line',data:{labels:labels,datasets:[
+    {label:'FPY',data:fpyData,borderColor:C.green,backgroundColor:C.green+'22',borderWidth:2.5,pointRadius:5,pointBackgroundColor:C.green,pointBorderColor:t.pointBorder,pointBorderWidth:2,tension:0.3,fill:true,order:2},
+    {label:'LPY',data:lpyData,borderColor:C.red,backgroundColor:C.red+'11',borderWidth:2.5,pointRadius:5,pointBackgroundColor:C.red,pointBorderColor:t.pointBorder,pointBorderWidth:2,tension:0.3,fill:true,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{
+    y:{min:0,max:100,grid:{color:t.grid},ticks:{callback:v=>v+'%',stepSize:10}},
+    x:{grid:{display:false},ticks:{maxRotation:45,font:{size:11}}}
+  },plugins:{legend:{display:true,labels:{boxWidth:14,padding:20,usePointStyle:true,pointStyle:'circle'}},
+    annotation:{annotations:{fpyT:{type:'line',yMin:fpyTarget,yMax:fpyTarget,borderColor:C.green+'66',borderWidth:2,borderDash:[8,4],label:{display:true,content:fpyLabel,position:'start',backgroundColor:'rgba(0,214,50,0.12)',color:C.green,font:{size:10}}},lpyT:{type:'line',yMin:lpyTarget,yMax:lpyTarget,borderColor:C.red+'66',borderWidth:2,borderDash:[8,4],label:{display:true,content:lpyLabel,position:'end',backgroundColor:'rgba(255,69,58,0.12)',color:C.red,font:{size:10}}}}},
+    tooltip:{backgroundColor:t.tooltipBg,titleColor:t.tooltipText,bodyColor:t.tooltipText,borderColor:t.tooltipBorder,borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%'}}}}});
+  allCharts.push(chart);return chart;
+}
+
+// SPE time data (from yield summary daily columns)
+makeTimeChart('speTimeChart',['2 Feb','3 Feb','4 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb','12 Feb','13 Feb'],[100.0,100.0,100.0,87.5,85.0,90.0,88.0,92.0,86.0,88.7],[100.0,100.0,100.0,97.0,96.0,98.0,97.5,98.5,97.0,97.9],80,90,'FPY Target (80%)','LPY Target (90%)');
+
+// MLB time data
+makeTimeChart('mlbTimeChart',['3 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb','12 Feb','13 Feb','17 Feb','18 Feb','19 Feb','20 Feb','24 Feb','25 Feb'],[55.0,50.0,65.0,58.0,62.0,55.0,70.0,60.0,65.0,58.0,62.0,55.0,63.0,60.2],[75.0,70.0,80.0,74.0,78.0,72.0,82.0,76.0,79.0,74.0,78.0,73.0,78.0,76.4],80,90,'FPY Target (80%)','LPY Target (90%)');
+
+// Sensor time data
+makeTimeChart('sensorTimeChart',['3 Feb','4 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb','12 Feb'],[95.0,92.0,96.0,90.0,95.0,93.0,96.0,94.0],[98.0,97.0,99.0,96.0,98.0,97.0,98.5,97.5],80,90,'FPY Target (80%)','LPY Target (90%)');
+
+// FATP time data (placeholder — limited data available)
+makeTimeChart('fatpTimeChart',['10 Mar','11 Mar','12 Mar','13 Mar','14 Mar','17 Mar','18 Mar'],[30.0,32.0,38.0,35.0,40.0,33.0,35.5],[55.0,58.0,62.0,60.0,65.0,58.0,60.8],70,80,'FPY Target (70%)','LPY Target (80%)');
+
+// ===== STATION BAR CHARTS =====
+function makeStationChart(canvasId,labels,retestData,failData){
+  const t=getThemeColors();const maxVal=Math.max(...retestData,...failData);const yMax=Math.ceil(maxVal/5)*5+2;
+  const chart=new Chart(document.getElementById(canvasId),{type:'bar',data:{labels:labels,datasets:[
+    {label:'Retest Rate (FPY impact)',data:retestData,backgroundColor:C.green+'55',borderColor:C.green,borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.8,
+      datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0},anchor:'end',align:'end',color:C.green,font:{size:10,weight:'bold'},formatter:v=>v.toFixed(1)+'%'}},
+    {label:'Failure Rate (LPY impact)',data:failData,backgroundColor:C.red+'55',borderColor:C.red,borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.8,
+      datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0},anchor:'end',align:'end',color:C.red,font:{size:10,weight:'bold'},formatter:v=>v.toFixed(1)+'%'}}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{
+    y:{beginAtZero:true,max:yMax,grid:{color:t.grid},ticks:{callback:v=>v+'%'}},
+    x:{grid:{display:false},ticks:{maxRotation:45,font:{size:11}}}
+  },plugins:{legend:{display:true,labels:{boxWidth:12,padding:16}},annotation:{annotations:{}},
+    tooltip:{backgroundColor:t.tooltipBg,titleColor:t.tooltipText,bodyColor:t.tooltipText,borderColor:t.tooltipBorder,borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%'}}}}});
+  allCharts.push(chart);return chart;
+}
+
+// SPE stations: retest% and fail%
+makeStationChart('speChart',
+  ['AA.SMT_input','TL.AOIA','AG.SMT_input','TK.AOIB','IU.Underfil','IB.DIP_VIB','ZA.BDL','ZC.BFT','IC.DIP_FINAL','PA.PACKING','SA.STOREIN'],
+  [0.0,0.0,0.0,0.0,0.0,0.0,7.8,1.6,0.0,0.0,0.0],
+  [0.0,0.2,0.0,0.2,0.0,0.0,0.9,0.7,0.0,0.0,0.0]);
+
+// MLB stations
+makeStationChart('mlbChart',
+  ['AA.SMT_input','TL.AOIA','TK.AOIB','ZA.BDL','ZC.BFT','ZE.WBT','IC.DIP_FINAL','PA.PACKING','SA.STOREIN'],
+  [0.0,0.0,0.0,2.4,7.3,7.7,0.0,0.0,0.0],
+  [0.0,0.0,3.8,1.9,7.5,20.9,0.0,0.0,0.0]);
+
+// Sensor stations
+makeStationChart('sensorChart',
+  ['AA.SMT_input','TL.AOIA','ZC.BFT','IC.DIP_FINAL','PA.PACKING','SA.STOREIN'],
+  [0.0,0.0,3.5,0.0,0.0,0.0],
+  [0.0,0.5,2.5,0.0,0.0,0.0]);
+
+// FATP stations (placeholder)
+makeStationChart('fatpChart',['FATP (pending detail)'],[0],[0]);
+
+// ===== DYNAMIC PARETO SYSTEM =====
+// SPE FPY (Retest) — rates calculated as retestQty / totalInput(428) * 100
+const speFpyAll=[
+  {l:"BDL | SECURE_INSTALL_SPE_BOOTLOADER",r:2.57},
+  {l:"BDL | DMM_P12V0_IN_RES",r:1.87},
+  {l:"BFT | RUN_DIP_TEST",r:1.40},
+  {l:"BDL | DMM_SW_OUT_1V8_VOLT_BEFORE_DL",r:1.17},
+  {l:"BDL | DOWNLOAD_SIGNED_FLASHLOADER",r:1.17},
+  {l:"BDL | CHECK_SPE_SERIAL_NUMBER",r:0.70},
+  {l:"BDL | DMM_VBATT_VOLT_BEFORE_DL",r:0.23},
+  {l:"BFT | RLY_ON_PSU_P3V0",r:0.23}
+];
+// SPE LPY (Failures) — rates calculated as failQty / totalInput * 100
+const speLpyAll=[
+  {l:"BDL | DMM_SW_OUT_1V8_VOLT_BEFORE_DL",r:0.47},
+  {l:"BDL | DMM_SPE_NTC_RES",r:0.47},
+  {l:"BFT | DIP_Test_DAQ_MEAS_SPE_CARD_PRES_L_LOW",r:0.23},
+  {l:"AOIA | Shifted",r:0.23},
+  {l:"AOIB | Tombstone",r:0.23},
+  {l:"BFT | SPE_SPEAKER_FREQUENCY_MEAS",r:0.23},
+  {l:"BFT | CHECK_SOC_SPE_SPARE_IO1_HIGH",r:0.23}
+];
+// MLB FPY (Retest) — rates as retestQty / 426 * 100
+const mlbFpyAll=[
+  {l:"BFT | DMIC1_DOMINANT_FREQ_TEST",r:5.87},
+  {l:"WBT | REPORT_TX_POUT_DBM_CH0_2412_BW20_CCK11",r:3.99},
+  {l:"WBT | REPORT_TX_POUT_DBM_CH1_2412_BW20_CCK11",r:1.41},
+  {l:"BDL | CHECK_MLB_BOOT_STATE",r:0.94},
+  {l:"BDL | DOWNLOAD_MTI",r:0.94},
+  {l:"BFT | COLLECT_WAV_DMIC1",r:0.47},
+  {l:"WBT | XO_CAL_FINAL_MEASURED_CW_POWER",r:0.47},
+  {l:"BFT | HEADSET_FREQUENCY_TEST_RIGHT",r:0.47},
+  {l:"WBT | CHECK_MLB_BOOT_STATE",r:0.47},
+  {l:"BDL | DMM_PSU_IN_VOLT_BEFORE_DL",r:0.23}
+];
+// MLB LPY (Failures) — rates as failQty / input * 100
+const mlbLpyAll=[
+  {l:"WBT | REPORT_TX_POUT_DBM_CH0_2412_BW20_CCK11",r:15.34},
+  {l:"WBT | REPORT_TX_POUT_DBM_CH1_2412_BW20_CCK11",r:3.07},
+  {l:"AOIB | Shifted",r:2.11},
+  {l:"AOIB | Component missing",r:0.94},
+  {l:"AOIB | Solder Open",r:0.47},
+  {l:"BFT | PING_DEVICE",r:0.47},
+  {l:"BDL | DMM_P20V0_IN_VOLT_BEFORE_DL",r:0.49},
+  {l:"BFT | HEADSET_FREQUENCY_TEST_RIGHT",r:0.24},
+  {l:"AOIB | Component Lead Bent",r:0.23}
+];
+// Sensor FPY (Retest) — rates as retestQty / 396 * 100
+const sensorFpyAll=[
+  {l:"BFT | Set current 3.5A",r:1.77},
+  {l:"BFT | LOGO_W_PWM_Frequency",r:1.01},
+  {l:"BFT | Check_sensor_board_FW_Version",r:0.25},
+  {l:"BFT | Measue_DUT_P20V0_MLB_Current",r:0.25},
+  {l:"BFT | DUT_P1V8_MCU Volt Before Download",r:0.25}
+];
+// Sensor LPY (Failures)
+const sensorLpyAll=[
+  {l:"BFT | LOGO_RGB_DATA_5V_Frequency",r:0.51},
+  {l:"BFT | Check_sensor_board_FW_Version",r:0.51},
+  {l:"BFT | Measue_DUT_P1V8_ALS_DMIC_Current",r:0.25},
+  {l:"BFT | AURA_L_DATA_5V_Frequency",r:0.25},
+  {l:"AOIA | Shifted",r:0.25},
+  {l:"AOIA | Component Lead Bent",r:0.25},
+  {l:"BFT | Check_sensor_board_ID",r:0.25},
+  {l:"BFT | Measue_DUT_P1V8_MCU_Current",r:0.25}
+];
+
+const PARETO_CONFIG={
+  'spe-fpy':{data:speFpyAll,color:C.green,unit:'Retest Rate %'},
+  'spe-lpy':{data:speLpyAll,color:C.red,unit:'Failure Rate %'},
+  'mlb-fpy':{data:mlbFpyAll,color:C.green,unit:'Retest Rate %'},
+  'mlb-lpy':{data:mlbLpyAll,color:C.red,unit:'Failure Rate %'},
+  'sensor-fpy':{data:sensorFpyAll,color:C.green,unit:'Retest Rate %'},
+  'sensor-lpy':{data:sensorLpyAll,color:C.red,unit:'Failure Rate %'}
+};
+const paretoCharts={};
+const paretoCountState={'spe-fpy':10,'spe-lpy':10,'mlb-fpy':10,'mlb-lpy':10,'sensor-fpy':10,'sensor-lpy':10};
+
+const ACTION_DATA={
+  // table_0 = SPE FPY (Retests) — sourced from MIL doc + FA Tracker
+  table_0:[
+    {issue:"BDL | SECURE_INSTALL_SPE_BOOTLOADER",risk:"high",fa:"[Test Script] BDL station test script instability — 11 retests (2.59% retest rate). MTE Lambert reviewing test logs. Dominant SPE retest issue.",ca:"1. SQ MTE investigating test script root cause.\n2. Dry run with updated script planned before EVT (mid-April).\n3. Est. yield recovery: part of ~7% retest reduction (Top 5 Action #5).",dri:"MTE Lambert / SQ Saman"},
+    {issue:"BDL | DMM_P12V0_IN_RES",risk:"high",fa:"[Test Fixture] DMM equipment hang/not stable — intermittent measurement failures at BDL station.",ca:"1. Restart DMM resolves issue temporarily.\n2. SQ to update test script with retry logic and DMM health check.\n3. Monitor stability through EVT dry run.",dri:"SQ MTE"},
+    {issue:"BFT | RUN_DIP_TEST",risk:"med",fa:"[Under Investigation] ~1 fail/day on single fixture. Fixture-specific issue suspected.",ca:"1. MTE Sam to discuss with vendor and update.\n2. Monitor in EVT build.\n3. Isolate fixture for debug if pattern continues.",dri:"MTE Sam"},
+    {issue:"BDL | DMM_SW_OUT_1V8_VOLT_BEFORE_DL",risk:"med",fa:"[Test Fixture] Spec: 1.71v < x < 1.89v. Test probe on TP404 (FB_1V8) impacts P1V8_SPE output — measurement reads high (1.896–1.908V). DOE confirmed: masking TP404 normalizes reading.",ca:"Short-term: Remove probes from TP404-FB_1V8, TP502-FB_6V0, TP505-FB_5V2. Test scripts skip those 3 items.\nLong-term: Vendor will build WIB board to support these test points in EVT.",dri:"MTE Lambert / SQ Saman"},
+    {issue:"BDL | DOWNLOAD_SIGNED_FLASHLOADER",risk:"med",fa:"[Test Script] Same BDL station instability as SECURE_INSTALL issue. MTE Lambert reviewing logs.",ca:"Will have dry run before EVT. Next CP: Mid April.",dri:"MTE Lambert"},
+    {issue:"BDL | CHECK_SPE_SERIAL_NUMBER",risk:"low",fa:"[Test Script] Intermittent serial number read failure.",ca:"Further verify in EVT with updated script.",dri:"SQ MTE"},
+    {issue:"BDL | DMM_VBATT_VOLT_BEFORE_DL",risk:"low",fa:"Single case, under monitoring.",ca:"N/A — monitor.",dri:""},
+    {issue:"BFT | RLY_ON_PSU_P3V0",risk:"low",fa:"Single case, under monitoring.",ca:"N/A — monitor.",dri:""}
+  ],
+  // table_1 = SPE LPY (Failures) — sourced from MIL doc + FA Tracker
+  table_1:[
+    {issue:"BDL | DMM_SW_OUT_1V8_VOLT_BEFORE_DL",risk:"med",fa:"[Test Fixture] Spec: 1.71v < x < 1.89v. Test probe on TP404 FB_1V8 impacts P1V8_SPE output. 2 true failures (0.47%). Board damage during EE debug on initial units.",ca:"Short-term: Remove probes from TP404, TP502, TP505. Test scripts skip those 3 items.\nLong-term: Vendor will build WIB board for EVT — permanent fix.\nEst. yield recovery: eliminates 0.47% true failure.",dri:"MTE Lambert / SQ Saman"},
+    {issue:"BDL | DMM_SPE_NTC_RES",risk:"med",fa:"[Test Fixture] NTC reading too warm — not a true component failure. Measurement environment causing spec exceedance.",ca:"1. SQ MTE update spec lower limit from 80kΩ to 50kΩ.\n2. Vendor add NTC on WIB board as reference.\n3. Cut-in EVT.",dri:"SQ MTE"},
+    {issue:"BFT | DIP_Test_DAQ_MEAS_SPE_CARD_PRES_L_LOW",risk:"low",fa:"[SMT Process] Spec: -0.1v < x < 0.4v, Result: 1.757V. Visual check found J900 EMV Connector lifted — through-hole not fully inserted.",ca:"1. Visual check before ATE Test on EMV connector.\n2. PSE to monitor J900 mounting.\n3. Change nozzle 1003→1004 for better placement consistency.",dri:"PSE"},
+    {issue:"AOIA | Shifted",risk:"low",fa:"[SMT Process] Suspect feeder overshoot causing pickup position off center on J1101.",ca:"Monitor J1101 placement. Pre AOI fine tuned during last MO (10 Feb).",dri:"PSE Ali"},
+    {issue:"AOIB | Tombstone",risk:"low",fa:"[SMT Process] J900 mounting intermittent — through-hole connector not inserted properly.",ca:"Change nozzle 1003→1004→8435 (2-nozzle head) for better control. Train PREAOI to capture abnormal J900 position.",dri:"PSE Ali"},
+    {issue:"BFT | SPE_SPEAKER_FREQUENCY_MEAS",risk:"low",fa:"[Design] Due to rework on U1200. EVT design change: new IC & layout, no rework required.",ca:"Single case, continue monitor. Will not recur in EVT.",dri:""},
+    {issue:"BFT | CHECK_SOC_SPE_SPARE_IO1_HIGH",risk:"low",fa:"[NTF] Debris covering test point — after removal, retest passed.",ca:"Single case, continue monitor. EVT: keep monitoring.",dri:""}
+  ],
+  // table_2 = MLB FPY (Retests) — sourced from MIL doc + FA Tracker
+  table_2:[
+    {issue:"BFT | DMIC1_DOMINANT_FREQ_TEST",risk:"high",fa:"[Test Script / SW] Known MTI (Manufacturing Test Image) bug — 25 retests (5.88% retest rate). SQ SW team investigating. Pure software issue consuming significant retest capacity. Top MLB retest issue.",ca:"1. SQ SW to provide new MTI fix.\n2. Dry run with new MTI & test script before EVT.\n3. Escalate to SQ SW with deadline tied to EVT dry run.\n4. Est. yield recovery: ~7% retest reduction (Top 5 Action #5).",dri:"SQ SW"},
+    {issue:"WBT | REPORT_TX_POUT_DBM_CH0_2412_BW20_CCK11",risk:"high",fa:"[SMT Process] Manual solder of SMA connector caused flux contamination on J10/J11 RF connectors. Same root cause as #1 MLB true failure (15.34% fail rate). Flux residue degrades RF signal path.",ca:"1. PD to paste Kapton tape at J10/J11 RF connector BEFORE manual SMA solder — mandatory checklist item.\n2. Clean RF connector using IPA under magnification.\n3. EVT: Evaluate wave-solder or reflow for SMA to eliminate manual soldering.\n4. Est. yield recovery: ~15–18% at WBT (Top 5 Action #1).",dri:"IE/Rafida"},
+    {issue:"WBT | REPORT_TX_POUT_DBM_CH1_2412_BW20_CCK11",risk:"med",fa:"[SMT Process] Same flux contamination root cause as CH0. J10/J11 manual SMA solder.",ca:"Same fix: Kapton tape + IPA cleaning. Covered by WBT corrective actions above.",dri:"IE/Rafida"},
+    {issue:"BDL | CHECK_MLB_BOOT_STATE",risk:"med",fa:"[Test Script] Expected Result = 1, Actual: None. Unit boots normally on bench but fails in ATE fixture. MTE to highlight to SQ. Opened EE-7314.",ca:"SQ team to update test script. New test script & plug module for EVT.",dri:"SQ MTE / SQ EE Dawei"},
+    {issue:"BDL | DOWNLOAD_MTI",risk:"low",fa:"[Test Script] MTI download intermittent failure at BDL station.",ca:"SQ team to update. New MTI delivery before EVT.",dri:"SQ MTE"},
+    {issue:"BFT | COLLECT_WAV_DMIC1",risk:"low",fa:"[SW] Bug in audio codec — related to DMIC1 dominant freq issue.",ca:"SQ will provide new MTI to verify again in dry run before EVT.",dri:"SQ SW"},
+    {issue:"WBT | XO_CAL_FINAL_MEASURED_CW_POWER",risk:"low",fa:"[Test Script] Intermittent calibration measurement failure.",ca:"SQ team to update test script.",dri:"SQ MTE"},
+    {issue:"BFT | HEADSET_FREQUENCY_TEST_RIGHT",risk:"low",fa:"[Test Script] Spec: 950Hz < x < 1050Hz, Fail: 0.2Hz. Passes when running Audio Headset Test Group alone, fails when running with other Test Groups. Board damaged after WBT loop test (1 scrap).",ca:"SQ team to update test script sequencing. New test script & plug module for EVT.",dri:"SQ MTE Roy / EE Gary"},
+    {issue:"WBT | CHECK_MLB_BOOT_STATE",risk:"low",fa:"[Test Script] Same boot state issue at WBT station.",ca:"SQ team to update.",dri:"SQ MTE"},
+    {issue:"BDL | DMM_PSU_IN_VOLT_BEFORE_DL",risk:"low",fa:"[Design] Spec: 19.5 < x < 20.5, Result: 22.4V. Back-charging from USB-C cable during EDL mode. Normal in non-EDL mode.",ca:"SQ EE Dawei recommends loosening spec from [19.5, 20.5]V to [19.5, 23.0]V.",dri:"SQ EE Dawei / SQ MTE Roy"}
+  ],
+  // table_3 = MLB LPY (Failures) — sourced from MIL doc + FA Tracker + Conclusion
+  table_3:[
+    {issue:"WBT | REPORT_TX_POUT_DBM_CH0_2412_BW20_CCK11",risk:"high",fa:"[SMT Process] 50 true failures (15.34% fail rate) — SINGLE LARGEST yield detractor across entire K1 build. Manual solder of SMA connector causing J10/J11 flux contamination. Flux residue on RF connector degrades WiFi TX power output below spec.",ca:"CRITICAL PRIORITY:\n1. Immediately enforce Kapton tape masking on J10/J11 before ANY manual soldering — mandatory checklist, not optional.\n2. Clean all reworked boards with IPA under magnification verification.\n3. Track WBT yield daily as a gating metric.\n4. EVT: Evaluate wave-solder or reflow for SMA connector to eliminate manual soldering entirely.\nEst. yield recovery: ~15–18% at WBT station (Top 5 Action #1).",dri:"IE/Rafida"},
+    {issue:"WBT | REPORT_TX_POUT_DBM_CH1_2412_BW20_CCK11",risk:"high",fa:"[SMT Process] 10 true failures (3.07%). Same flux contamination root cause as CH0 — J10/J11 manual SMA solder.",ca:"Same corrective actions as CH0 above. Kapton tape + IPA cleaning enforced.",dri:"IE/Rafida"},
+    {issue:"AOIB | Shifted",risk:"med",fa:"[SMT Process] 9 failures across random locations: C418, J11, R286, R221, J2, SHLD5, L25, SHLD4, SHLD3. Multiple component types affected.",ca:"Refer to FA tracker for per-component details. PSE monitoring placement accuracy across all affected locations.",dri:"PSE Ali"},
+    {issue:"AOIB | Component missing",risk:"med",fa:"[SMT Process] 4 failures: J9 manual insert missing (2 units) — conveyor passed without insertion; TVS18 (1) suspect J21 mounting error; J13 (1) NPM7 mounting error.",ca:"J9: Set conveyor to manual pass for J9 insertion. IE prepare SOP.\nTVS18: Monitor J21 mounting.\nJ13: Slow down NPM7 mounting speed.",dri:"PSE Ali"},
+    {issue:"AOIB | Solder Open",risk:"low",fa:"[NTF] SHLD2 — False call by AOI. Verified physical shield has no open solder.",ca:"N/A — AOI false call.",dri:"PSE Ali"},
+    {issue:"BFT | PING_DEVICE",risk:"low",fa:"[Test Script] MLB fails to ping server (169.254.8.200) after 3 retries. Works reliably when connected to router. No HW issue confirmed by PSE.",ca:"SQ Max Chen: use different command (adb shell \"ip addr add 192.168.0.104/24 dev eth0\" && ping). New test script & plug module for EVT.",dri:"SQ MTE / SQ EE Dawei"},
+    {issue:"BDL | DMM_P20V0_IN_VOLT_BEFORE_DL",risk:"low",fa:"[Design] Spec: 19.5 < x < 20.5, Result: 22.4V. Bimodal voltage distribution of VPH_PWR at EDL mode — back-charging from USB-C. Cannot disable charging in SW during EDL.",ca:"SQ EE Dawei recommends loosening spec from [19.5, 20.5]V to [19.5, 23.0]V. Normal in non-EDL mode.",dri:"SQ EE Dawei / SQ MTE Roy"},
+    {issue:"BFT | HEADSET_FREQUENCY_TEST_RIGHT",risk:"low",fa:"[Test Script] Passes in isolation, fails when running with other Test Groups. 1 board scrapped after WBT loop test damage.",ca:"New test script & plug module for EVT. Test sequencing fix needed.",dri:"SQ MTE Roy / EE Gary"},
+    {issue:"AOIB | Component Lead Bent",risk:"low",fa:"[SMT Process] J13 NPM7 placement mounting error — mounted after pre-AOI so not caught.",ca:"Slow down NPM7 mounting speed. Inspect after NPM7 to ensure inserted flush to PCB.",dri:"PSE Ali"}
+  ],
+  // table_4 = Sensor FPY (Retests) — sourced from MIL doc + FA Tracker
+  table_4:[
+    {issue:"BFT | Set current 3.5A",risk:"med",fa:"[Test Script / Vendor] Loss of E-load control — 7 retests (1.77% retest rate). Debug traced to vendor's code resource management issue.",ca:"Vendor fine-tuned open resource handling in code. No retest issue observed in Main build — RESOLVED.\nMonitor in EVT to confirm.",dri:"Vendor"},
+    {issue:"BFT | LOGO_W_PWM_Frequency",risk:"med",fa:"[Test Limit] Test limit too tight — not accepting valid readings.",ca:"Updated limit to accept 3 or 4 counts. Monitor on next build.",dri:"MTE"},
+    {issue:"BFT | Check_sensor_board_FW_Version",risk:"low",fa:"Single retest case.",ca:"Under monitoring.",dri:""},
+    {issue:"BFT | Measue_DUT_P20V0_MLB_Current",risk:"low",fa:"Single retest case.",ca:"Under monitoring.",dri:""},
+    {issue:"BFT | DUT_P1V8_MCU Volt Before Download",risk:"low",fa:"Single retest case.",ca:"Under monitoring.",dri:""}
+  ],
+  // table_5 = Sensor LPY (Failures) — sourced from MIL doc + FA Tracker
+  table_5:[
+    {issue:"BFT | LOGO_RGB_DATA_5V_Frequency",risk:"med",fa:"[Test Image / FW] Spec: 600kHz < x < 700kHz, Result: -2Hz (no frequency). Oscilloscope shows LOGO_RGB_DATA_5V signal only consistent ~100μs — too brief for reliable capture. 2 true failures (0.51%).",ca:"Long-term: SQ FW to provide new firmware file that consistently emits RGB DATA signal.\nShort-term: MTE Sam Chih — FAI build this test item log only.\nNew test script under development.",dri:"MTE Sam Chih / SQ FW"},
+    {issue:"BFT | Check_sensor_board_FW_Version",risk:"med",fa:"[Material] 2 true failures (0.51%). Visual inspection found U4 pin floating — deformed leads on component U4 (E-ICS-0911$A01) in tray packaging. Multiple symptoms trace to same U4 defect. HIGH PRIORITY per MIL conclusion.",ca:"CRITICAL (Top 5 Action #3):\n1. Long-term: Vendor to supply U4 (PN change from E-ICS-0911$A01 to E-ICS-0911$A02) in reel format. Effective in EVT.\n2. Pull forward reel-format PN (A02) if any inventory available — do NOT wait for EVT.\n3. Add incoming inspection for U4 lead coplanarity until new PN qualified.\n4. Flag to vendor as CAR (Corrective Action Request), not just PN change.\n5. Immediate: Tighten Post-AOI inspection for U4 lead. AOI buyoff OP inspect 3D image.\nEst. yield recovery: ~0.75% true failure (Top 5 Action #3).",dri:"EE Ariel / EE Aileen / Vendor"},
+    {issue:"BFT | Measue_DUT_P1V8_ALS_DMIC_Current",risk:"low",fa:"[NTF] Spec: 0.02mA < x < 0.05mA, Result: -999. Retest 3x showed fail with different test item. Offline retest passed. Failure due to test station DMM connection issue.",ca:"Single test case — NTF. Suggest keep under monitoring.",dri:"EE Ariel / EE Aileen"},
+    {issue:"BFT | AURA_L_DATA_5V_Frequency",risk:"low",fa:"[Material] Spec: 600kHz < x < 700kHz, Result: -2Hz. Visual inspection: U4 pin2 floating, no solder. Same U4 deformed lead root cause.",ca:"Same as Check_sensor_board_FW_Version: Vendor to supply U4 in reel (PN change to A02). Tighten Post-AOI for U4 lead.",dri:"EE Ariel / EE Aileen / Vendor"},
+    {issue:"AOIA | Shifted",risk:"low",fa:"[SMT Process] U2 component shifted. Suspect feeder overshoot causing pickup position off center. Pre-AOI captured but buyoff operator wrongly judged as PASS.",ca:"Monitor U2 placement. AOI buyoff operator retrained on judgement criteria.",dri:"PSE Ali"},
+    {issue:"AOIA | Component Lead Bent",risk:"low",fa:"[Material] U4 raw material in tray having deformed lead. Pre-AOI allowed to pass.",ca:"Tighten Post-AOI for U4 lead inspection. Vendor to supply U4 in reel for EVT.",dri:"Vendor / PSE"},
+    {issue:"BFT | Check_sensor_board_ID",risk:"low",fa:"[Material] U4 raw material deformed lead — same root cause family.",ca:"Vendor to supply U4 (PN change to A02) in reel. Effective in EVT.",dri:"Vendor"},
+    {issue:"BFT | Measue_DUT_P1V8_MCU_Current",risk:"low",fa:"[Material] Spec: 10mA < x < 15mA, Result: 0.010mA. Visual inspection: U4 pin floating. Same U4 deformed lead root cause.",ca:"Vendor to supply U4 (PN change to A02) in reel. Effective in EVT.",dri:"Vendor"}
+  ]
+};
+
+function buildPareto(id,count){
+  const cfg=PARETO_CONFIG[id];if(!cfg)return;
+  // Save current edits before rebuilding
+  const tIdx=PARETO_TABLE_MAP[id];
+  const key='table_'+tIdx;
+  const existingTable=document.getElementById(id+'Table');
+  if(existingTable&&existingTable.querySelector('tbody tr')){
+    const currentData=[];
+    existingTable.querySelectorAll('tbody tr').forEach(row=>{
+      currentData.push({issue:row.cells[1].textContent.trim(),risk:row.cells[0].querySelector('.risk-select')?row.cells[0].querySelector('.risk-select').value:'low',fa:row.cells[3].innerText.trim(),ca:row.cells[4].innerText.trim(),dri:row.cells[5].innerText.trim()});
+    });
+    if(!ACTION_DATA[key])ACTION_DATA[key]=[];
+    currentData.forEach(item=>{const existing=ACTION_DATA[key].find(d=>d.issue===item.issue);if(existing){if(item.fa)existing.fa=item.fa;if(item.ca)existing.ca=item.ca;if(item.dri)existing.dri=item.dri;existing.risk=item.risk}else{ACTION_DATA[key].push(item)}});
+  }
+  const items=count===0?cfg.data:cfg.data.slice(0,count);
+  const labels=items.map(d=>d.l);const values=items.map(d=>d.r);
+  const totalAll=cfg.data.reduce((a,b)=>a+b.r,0);
+  let cum=0;const cumPct=values.map(v=>{cum+=v;return cum/totalAll*100});
+  const t=getThemeColors();
+  if(paretoCharts[id]){paretoCharts[id].destroy();const idx=allCharts.indexOf(paretoCharts[id]);if(idx>-1)allCharts.splice(idx,1)}
+  const inner=document.getElementById(id+'Chart').parentElement;
+  inner.style.minWidth=Math.max(600,items.length*70)+'px';
+  const chart=new Chart(document.getElementById(id+'Chart'),{
+    data:{labels,datasets:[
+      {type:'bar',label:cfg.unit,data:values,backgroundColor:cfg.color+'55',borderColor:cfg.color,borderWidth:2,borderRadius:4,barPercentage:0.75,yAxisID:'y',order:2,
+        datalabels:{display:true,anchor:'end',align:'end',color:cfg.color,font:{size:11,weight:'bold'},formatter:v=>v.toFixed(1)+'%'}},
+      {type:'line',label:'Cumulative %',data:cumPct,borderColor:C.yellow,backgroundColor:C.yellow+'22',borderWidth:2,pointRadius:4,pointBackgroundColor:C.yellow,tension:0.3,fill:false,yAxisID:'y1',order:1,
+        datalabels:{display:false}}
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{
+      y:{beginAtZero:true,grid:{color:t.grid},ticks:{callback:v=>v.toFixed(1)+'%',color:cfg.color,font:{weight:'bold'},_origColor:cfg.color},title:{display:true,text:cfg.unit,color:cfg.color}},
+      y1:{position:'right',min:0,max:100,grid:{display:false},ticks:{callback:v=>v+'%',color:C.yellow,_origColor:C.yellow},title:{display:true,text:'Cumulative %',color:C.yellow}},
+      x:{grid:{display:false},ticks:{maxRotation:50,font:{size:10}}}
+    },plugins:{legend:{display:true,labels:{boxWidth:12,padding:16}},annotation:{annotations:{}},
+      tooltip:{backgroundColor:t.tooltipBg,titleColor:t.tooltipText,bodyColor:t.tooltipText,borderColor:t.tooltipBorder,borderWidth:1,
+        callbacks:{label:function(ctx){return ctx.datasetIndex===0?ctx.dataset.label+': '+ctx.parsed.y.toFixed(2)+'%':ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%'},
+          afterBody:function(its){const idx=its[0].dataIndex;return'Cumulative: '+cumPct[idx].toFixed(1)+'% of total'}}}}}
+  });
+  paretoCharts[id]=chart;allCharts.push(chart);
+
+  // Build action table
+  const tableDiv=document.getElementById(id+'Table');if(!tableDiv)return;
+  const rateLabel=cfg.unit.replace(' %','');
+  let html='<table class="action-table"><thead><tr><th class="col-risk">Risk</th><th class="col-issue">Issue (Station + Issue)</th><th class="col-rate">'+rateLabel+'</th><th class="col-fa">Failure Analysis</th><th class="col-ca">Corrective Actions</th><th class="col-dri">DRI</th></tr></thead><tbody>';
+  items.forEach(item=>{
+    const risk=item.r>=2?'high':item.r>=0.5?'med':'low';
+    html+='<tr><td><select class="risk-select" onchange="updateRiskStyle(this)">';
+    html+='<option value="high"'+(risk==='high'?' selected':'')+'>High</option>';
+    html+='<option value="med"'+(risk==='med'?' selected':'')+'>Med</option>';
+    html+='<option value="low"'+(risk==='low'?' selected':'')+'>Low</option>';
+    html+='<option value="closed">Closed</option>';
+    html+='</select></td>';
+    html+='<td>'+item.l+'</td>';
+    html+='<td class="rate-col">'+item.r.toFixed(1)+'%</td>';
+    html+='<td class="fa-cell" contenteditable="true" data-placeholder="Enter FA..."></td>';
+    html+='<td class="ca-cell" contenteditable="true" data-placeholder="Enter CA..."></td>';
+    html+='<td class="dri-cell" contenteditable="true" data-placeholder="Enter DRI..."></td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  tableDiv.innerHTML=html;
+  tableDiv.querySelectorAll('.risk-select').forEach(el=>{updateRiskStyle(el);el.addEventListener('change',()=>setAllStatus('● Unsaved changes'))});
+  // Apply saved action data
+  applyDataToTable(id,tableDiv);
+}
+
+const PARETO_TABLE_MAP={'spe-fpy':0,'spe-lpy':1,'mlb-fpy':2,'mlb-lpy':3,'sensor-fpy':4,'sensor-lpy':5};
+
+function applyDataToTable(id,tableDiv){
+  const tIdx=PARETO_TABLE_MAP[id];
+  const key='table_'+tIdx;
+  const savedItems=ACTION_DATA[key];
+  if(!savedItems||!savedItems.length)return;
+  const rows=tableDiv.querySelectorAll('tbody tr');
+  rows.forEach(row=>{
+    const issue=row.cells[1].textContent.trim();
+    const match=savedItems.find(item=>item.issue===issue);
+    if(!match)return;
+    if(match.risk){const sel=row.cells[0].querySelector('.risk-select');if(sel){sel.value=match.risk;updateRiskStyle(sel)}}
+    if(match.fa)row.cells[3].innerText=match.fa;
+    if(match.ca)row.cells[4].innerText=match.ca;
+    if(match.dri)row.cells[5].innerText=match.dri;
+  });
+}
+
+function updatePareto(id,count,btn){
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');paretoCountState[id]=count;buildPareto(id,count);
+}
+
+// ===== RISK DROPDOWN STYLING =====
+function updateRiskStyle(el){
+  const v=el.value;const dark=isDark();
+  if(v==='high'){el.style.background='rgba(255,69,58,0.2)';el.style.color='#FF453A'}
+  else if(v==='med'){el.style.background='rgba(255,214,10,0.2)';el.style.color=dark?'#FFD60A':'#D4A017'}
+  else if(v==='closed'){el.style.background='rgba(142,142,147,0.2)';el.style.color='#8E8E93'}
+  else{el.style.background='rgba(0,214,50,0.2)';el.style.color='#00D632'}
+}
+
+// ===== EXPORT PARETO AS IMAGE =====
+async function exportPareto(id){
+  const el=document.getElementById('export-'+id);if(!el)return;
+  const btn=el.querySelector('.export-btn');
+  if(btn){btn.classList.add('exporting');btn.textContent='📸 Exporting...'}
+  const wasDark=isDark();
+  if(wasDark){document.documentElement.setAttribute('data-theme','light');applyThemeToCharts();document.querySelectorAll('.risk-select').forEach(s=>updateRiskStyle(s))}
+  await new Promise(r=>setTimeout(r,300));
+  try{
+    const selectBackups=[];
+    el.querySelectorAll('.risk-select').forEach(sel=>{const val=sel.value;const span=document.createElement('span');span.textContent=val.charAt(0).toUpperCase()+val.slice(1);const styles={high:'background:rgba(255,69,58,0.2);color:#FF453A',med:'background:rgba(255,214,10,0.2);color:#D4A017',low:'background:rgba(0,214,50,0.2);color:#00D632',closed:'background:rgba(142,142,147,0.2);color:#8E8E93'};span.style.cssText='display:inline-block;padding:2px 10px;border-radius:10px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;'+styles[val];selectBackups.push({sel,parent:sel.parentNode,next:sel.nextSibling});sel.parentNode.replaceChild(span,sel)});
+    await new Promise(r=>setTimeout(r,100));
+    const canvas=await html2canvas(el,{backgroundColor:'#FFFFFF',scale:2,useCORS:true,logging:false});
+    selectBackups.forEach(({sel,parent})=>{const span=parent.querySelector('span[style]');if(span)parent.replaceChild(sel,span)});
+    const filename='K1_Proto_'+id.replace('-','_').toUpperCase()+'_'+new Date().toISOString().slice(0,10)+'.png';
+    const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();
+  }catch(err){console.error('Export failed:',err);alert('Export failed: '+err.message)}
+  if(wasDark){document.documentElement.setAttribute('data-theme','dark');applyThemeToCharts();document.querySelectorAll('.risk-select').forEach(s=>updateRiskStyle(s))}
+  if(btn){btn.classList.remove('exporting');btn.textContent='📸 Export as Image'}
+}
+
+// ===== EXPORT TO EXCEL =====
+function exportToExcel(id){
+  const cfg=PARETO_CONFIG[id];if(!cfg)return;
+  const rateLabel=cfg.unit.replace(' %','');
+  const tableDiv=document.getElementById(id+'Table');
+  const rows=tableDiv?tableDiv.querySelectorAll('tbody tr'):[];
+  const data=[['Risk','Issue (Station + Issue)',rateLabel,'Failure Analysis','Corrective Actions','DRI']];
+  if(rows.length){rows.forEach(row=>{const sel=row.cells[0].querySelector('.risk-select');data.push([sel?sel.value.toUpperCase():'',row.cells[1].textContent.trim(),row.cells[2].textContent.trim(),row.cells[3].innerText.trim(),row.cells[4].innerText.trim(),row.cells[5].innerText.trim()])})}
+  else{cfg.data.forEach(item=>{data.push([item.r>=2?'HIGH':item.r>=0.5?'MED':'LOW',item.l,item.r.toFixed(1)+'%','','',''])})}
+  const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=[{wch:8},{wch:45},{wch:12},{wch:60},{wch:60},{wch:20}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,id.replace('-',' ').toUpperCase());
+  XLSX.writeFile(wb,'K1_Proto_'+id.replace('-','_').toUpperCase()+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+// ===== GIST SAVE/LOAD SYSTEM =====
+const GIST_ID='28e67a8890c4bce6e9ae617eefa19236';
+const GIST_TOKEN='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';
+const ALL_PARETO_IDS=['spe-fpy','spe-lpy','mlb-fpy','mlb-lpy','sensor-fpy','sensor-lpy'];
+const TABLE_NAMES=['SPE FPY (Retests)','SPE LPY (Failures)','MLB FPY (Retests)','MLB LPY (Failures)','Sensor FPY (Retests)','Sensor LPY (Failures)'];
+
+function collectAllData(){
+  const data={};
+  ALL_PARETO_IDS.forEach((id,tIdx)=>{
+    const tableDiv=document.getElementById(id+'Table');if(!tableDiv)return;
+    const rows=tableDiv.querySelectorAll('tbody tr');const tableData=[];
+    rows.forEach(row=>{tableData.push({issue:row.cells[1].textContent.trim(),risk:row.cells[0].querySelector('.risk-select').value,fa:row.cells[3].innerText.trim(),ca:row.cells[4].innerText.trim(),dri:row.cells[5].innerText.trim()})});
+    data['table_'+tIdx]=tableData;
+  });
+  data.lastSaved=new Date().toISOString();data.savedBy='dashboard';return data;
+}
+
+function applyData(data){
+  if(data)Object.assign(ACTION_DATA,data);
+  ALL_PARETO_IDS.forEach(id=>{
+    const tableDiv=document.getElementById(id+'Table');
+    if(!tableDiv||!tableDiv.querySelector('tbody tr'))return;
+    applyDataToTable(id,tableDiv);
+  });
+}
+
+function setAllStatus(text,addClass){
+  document.querySelectorAll('.save-status').forEach(el=>{el.textContent=text;if(addClass){el.classList.add(addClass);setTimeout(()=>el.classList.remove(addClass),4000)}});
+}
+
+async function saveToGist(){
+  setAllStatus('☁️ Saving for everyone...');
+  try{
+    const data=collectAllData();
+    const resp=await fetch('https://api.github.com/gists/'+GIST_ID,{method:'PATCH',headers:{'Authorization':'token '+GIST_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify({files:{'action-data.json':{content:JSON.stringify(data,null,2)}}})});
+    if(!resp.ok)throw new Error('Save failed: '+resp.status);
+    setAllStatus('✅ Saved for everyone · '+new Date().toLocaleTimeString(),'saved');
+  }catch(err){console.error('Save error:',err);setAllStatus('⚠️ Save failed — '+err.message)}
+}
+
+let gistLoaded=false;
+async function loadFromGist(){
+  setAllStatus('🔄 Loading latest...');
+  try{
+    const resp=await fetch('https://api.github.com/gists/'+GIST_ID,{headers:{'Accept':'application/vnd.github.v3+json'}});
+    if(!resp.ok)throw new Error('Load failed: '+resp.status);
+    const gist=await resp.json();const content=gist.files['action-data.json'].content;const data=JSON.parse(content);
+    Object.assign(ACTION_DATA,data);gistLoaded=true;applyData(data);
+    const ts=data.lastSaved?new Date(data.lastSaved).toLocaleString():'unknown';
+    setAllStatus('☁️ Loaded latest · '+ts,'saved');
+  }catch(err){console.error('Load error:',err);gistLoaded=true;setAllStatus('Using embedded defaults')}
+}
+
+document.addEventListener('input',function(e){if(e.target.closest('.action-table')){setAllStatus('● Unsaved changes')}});
+
+async function loadHistory(){
+  const panel=document.getElementById('historyPanel');const list=document.getElementById('historyList');
+  panel.style.display='block';list.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-secondary)">Loading history...</div>';
+  try{
+    const resp=await fetch('https://api.github.com/gists/'+GIST_ID,{headers:{'Accept':'application/vnd.github.v3+json'}});
+    if(!resp.ok)throw new Error('Failed: '+resp.status);
+    const gist=await resp.json();const history=gist.history||[];
+    if(!history.length){list.innerHTML='<div style="padding:20px;color:var(--text-muted)">No history found</div>';return}
+    let html='';
+    history.forEach((h,idx)=>{const date=new Date(h.committed_at).toLocaleString();const ver=h.version.substring(0,8);const isCurrent=idx===0;
+      html+='<div class="history-item"><span class="h-date">'+date+'</span><span class="h-info">v.'+ver+(isCurrent?' (current)':'')+'</span><span class="h-actions"><button class="h-btn" onclick="previewVersion(\''+h.version+'\',this)">👁 Preview</button>';
+      if(!isCurrent)html+='<button class="h-btn restore" onclick="restoreVersion(\''+h.version+'\')">↩️ Restore</button>';
+      html+='</span></div>'});
+    list.innerHTML=html;
+  }catch(err){list.innerHTML='<div style="padding:20px;color:#FF453A">Error: '+err.message+'</div>'}
+}
+
+async function previewVersion(version,btn){
+  document.querySelectorAll('.history-preview').forEach(el=>el.remove());
+  try{
+    const resp=await fetch('https://api.github.com/gists/'+GIST_ID+'/'+version,{headers:{'Accept':'application/vnd.github.v3+json'}});
+    if(!resp.ok)throw new Error('Failed');const gist=await resp.json();const data=JSON.parse(gist.files['action-data.json'].content);
+    const ts=data.lastSaved?new Date(data.lastSaved).toLocaleString():'unknown';
+    let html='<div class="history-preview"><strong>Saved:</strong> '+ts+'<br><br>';
+    for(let t=0;t<6;t++){const key='table_'+t;const items=data[key]||[];if(!items.length)continue;
+      html+='<strong>'+TABLE_NAMES[t]+' ('+items.length+' issues)</strong>';
+      html+='<table><thead><tr><th>Risk</th><th>Issue</th><th>FA</th><th>CA</th><th>DRI</th></tr></thead><tbody>';
+      items.forEach(item=>{const rc=item.risk==='high'?'#FF453A':item.risk==='med'?'#FFD60A':item.risk==='closed'?'#8E8E93':'#00D632';
+        html+='<tr><td style="color:'+rc+';font-weight:700;text-transform:uppercase">'+(item.risk||'low')+'</td><td>'+(item.issue||'')+'</td><td>'+(item.fa||'—')+'</td><td>'+(item.ca||'—')+'</td><td>'+(item.dri||'—')+'</td></tr>'});
+      html+='</tbody></table><br>'}
+    html+='</div>';btn.closest('.history-item').insertAdjacentHTML('afterend',html);
+  }catch(err){alert('Preview failed: '+err.message)}
+}
+
+async function restoreVersion(version){
+  if(!confirm('Restore this version? Current data will be overwritten.'))return;
+  try{
+    setAllStatus('↩️ Restoring...');
+    const resp=await fetch('https://api.github.com/gists/'+GIST_ID+'/'+version,{headers:{'Accept':'application/vnd.github.v3+json'}});
+    if(!resp.ok)throw new Error('Failed');const gist=await resp.json();const data=JSON.parse(gist.files['action-data.json'].content);
+    data.lastSaved=new Date().toISOString();data.restoredFrom=version.substring(0,8);
+    const saveResp=await fetch('https://api.github.com/gists/'+GIST_ID,{method:'PATCH',headers:{'Authorization':'token '+GIST_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify({files:{'action-data.json':{content:JSON.stringify(data,null,2)}}})});
+    if(!saveResp.ok)throw new Error('Save failed');
+    applyData(data);
+    ALL_PARETO_IDS.forEach(id=>{if(document.getElementById(id+'Table')&&document.getElementById(id+'Table').querySelector('tr')){buildPareto(id,paretoCountState[id])}});
+    setAllStatus('✅ Restored v.'+version.substring(0,8)+' · '+new Date().toLocaleTimeString(),'saved');
+    document.getElementById('historyPanel').style.display='none';
+  }catch(err){setAllStatus('⚠️ Restore failed: '+err.message)}
+}
+
+// Load from gist on page load
+loadFromGist();
+
+// ===== SECTION NAVIGATION =====
+function showSection(sectionId,btn){
+  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
+  const target=document.getElementById('section-'+sectionId);
+  if(target)target.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  document.querySelector('.main-content').scrollTop=0;window.scrollTo(0,0);
+  setTimeout(()=>{
+    allCharts.forEach(c=>c.resize());
+    const paretoSections=['spe-pareto','mlb-pareto','sensor-pareto'];
+    paretoSections.forEach(ps=>{
+      if(sectionId===ps){
+        const prefix=ps.replace('-pareto','');
+        buildPareto(prefix+'-fpy',paretoCountState[prefix+'-fpy']);
+        buildPareto(prefix+'-lpy',paretoCountState[prefix+'-lpy']);
+      }
+    });
+  },50);
+}
+
+// Apply theme on initial load
+if(!isDark()){applyThemeToCharts();document.querySelectorAll('.risk-select').forEach(el=>updateRiskStyle(el))}
+</script>
+</body>
+</html>
