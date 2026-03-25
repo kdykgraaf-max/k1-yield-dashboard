@@ -398,6 +398,19 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 </tbody>
 </table>
 </div>
+<div class="chart-card" id="speTrendCard" style="display:none">
+<div class="chart-title">📈 SPE Station Trend Over Time</div>
+<div class="station-toggles" id="speStationToggles"></div>
+<div style="display:flex;gap:12px;margin-bottom:8px">
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="speTrendType" value="fr" checked onchange="buildStationTrend('spe')"> Failure Rate
+</label>
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="speTrendType" value="rr" onchange="buildStationTrend('spe')"> Retest Rate
+</label>
+</div>
+<canvas id="speTrendChart" width="1200" height="400" style="width:100%;height:400px"></canvas>
+</div>
 </div>
 </div>
 
@@ -479,6 +492,19 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 </tbody>
 </table>
 </div>
+<div class="chart-card" id="mlbTrendCard" style="display:none">
+<div class="chart-title">📈 MLB Station Trend Over Time</div>
+<div class="station-toggles" id="mlbStationToggles"></div>
+<div style="display:flex;gap:12px;margin-bottom:8px">
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="mlbTrendType" value="fr" checked onchange="buildStationTrend('mlb')"> Failure Rate
+</label>
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="mlbTrendType" value="rr" onchange="buildStationTrend('mlb')"> Retest Rate
+</label>
+</div>
+<canvas id="mlbTrendChart" width="1200" height="400" style="width:100%;height:400px"></canvas>
+</div>
 </div>
 </div>
 
@@ -556,6 +582,19 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <tr><td>SA.STOREIN</td><td>386</td><td>386</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
 </tbody>
 </table>
+</div>
+<div class="chart-card" id="sensorTrendCard" style="display:none">
+<div class="chart-title">📈 Sensor Station Trend Over Time</div>
+<div class="station-toggles" id="sensorStationToggles"></div>
+<div style="display:flex;gap:12px;margin-bottom:8px">
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="sensorTrendType" value="fr" checked onchange="buildStationTrend('sensor')"> Failure Rate
+</label>
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="sensorTrendType" value="rr" onchange="buildStationTrend('sensor')"> Retest Rate
+</label>
+</div>
+<canvas id="sensorTrendChart" width="1200" height="400" style="width:100%;height:400px"></canvas>
 </div>
 </div>
 </div>
@@ -640,6 +679,19 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <tr><td>SN. Store In</td><td>192</td><td>192</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
 </tbody>
 </table>
+</div>
+<div class="chart-card" id="fatpTrendCard" style="display:none">
+<div class="chart-title">📈 FATP Station Trend Over Time</div>
+<div class="station-toggles" id="fatpStationToggles"></div>
+<div style="display:flex;gap:12px;margin-bottom:8px">
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="fatpTrendType" value="fr" checked onchange="buildStationTrend('fatp')"> Failure Rate
+</label>
+<label style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:4px">
+<input type="radio" name="fatpTrendType" value="rr" onchange="buildStationTrend('fatp')"> Retest Rate
+</label>
+</div>
+<canvas id="fatpTrendChart" width="1200" height="400" style="width:100%;height:400px"></canvas>
 </div>
 </div>
 </div>
@@ -758,7 +810,10 @@ const C={green:'#00D632',blue:'#5AC8FA',red:'#FF453A',yellow:'#FFD60A',purple:'#
       y:{beginAtZero:true,max:105,grid:{color:t.grid},ticks:{callback:v=>v+'%'}},
       x:{grid:{display:false}}
     },plugins:{legend:{display:true,labels:{boxWidth:14,padding:20}},
-      annotation:{annotations:{target90:{type:'line',yMin:90,yMax:90,borderColor:C.yellow+'66',borderWidth:2,borderDash:[8,4],label:{display:true,content:'90% Target',position:'start',backgroundColor:'rgba(255,214,10,0.12)',color:C.yellow,font:{size:10}}}}},
+      annotation:{annotations:{
+        fpyTarget:{type:'line',yMin:80,yMax:80,borderColor:C.green+'66',borderWidth:2,borderDash:[8,4],label:{display:true,content:'FPY Target (80%)',position:'start',backgroundColor:'rgba(0,214,50,0.12)',color:C.green,font:{size:10}}},
+        lpyTarget:{type:'line',yMin:90,yMax:90,borderColor:C.red+'66',borderWidth:2,borderDash:[8,4],label:{display:true,content:'LPY Target (90%)',position:'end',backgroundColor:'rgba(255,69,58,0.12)',color:C.red,font:{size:10}}}
+      }},
       tooltip:{backgroundColor:t.tooltipBg,titleColor:t.tooltipText,bodyColor:t.tooltipText,borderColor:t.tooltipBorder,borderWidth:1}}}
   });
   allCharts.push(chart);
@@ -830,6 +885,97 @@ makeStationChart('fatpChart',
   ['C5.Scan SN','AO.Assembly','T1.Function Test','AS.Back Cover','DW.WLAN OTA','DY.DPD Test','DK.Sensor/Barcode','CU.TQM','IO.Post Insp','QF.FQC','PO.Packing','SN.Store In'],
   [0.0,0.0,16.7,0.0,2.1,0.6,9.6,14.3,0.0,0.0,0.0,0.0],
   [0.0,0.0,27.6,0.0,0.0,0.6,6.6,7.1,0.0,2.6,0.0,0.0]);
+
+// ===== STATION TREND DATA =====
+const STATION_COLORS=['#00D632','#5AC8FA','#FF453A','#FFD60A','#BF5AF2','#FF9F0A','#30D158','#64D2FF','#FF6961','#FFCC00','#AF52DE','#FF3B30','#34C759','#007AFF','#FF9500','#8E8E93'];
+
+const speTrendData={
+  dates:['2 Feb','3 Feb','4 Feb','5 Feb(FAI)','5 Feb(Mini)','6 Feb','7 Feb(Mini)','7 Feb(Main)','9 Feb','10 Feb','11 Feb','12 Feb'],
+  stations:{
+    'ZA.BDL':{input:[0,0,0,24,1,0,26,46,0,10,124,127],failed:[0,0,0,1,0,0,0,1,0,1,1,0],retest:[0,0,0,3,0,0,8,5,0,1,4,7]},
+    'ZC.BFT':{input:[0,0,0,24,1,0,22,50,0,9,124,127],failed:[0,0,0,1,0,0,0,0,0,0,0,1],retest:[0,0,0,0,0,0,0,0,0,0,3,3]}
+  }
+};
+
+const mlbTrendData={
+  dates:['3 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb','12 Feb','13 Feb','17 Feb','18 Feb','19 Feb','20 Feb','24 Feb','25 Feb'],
+  stations:{
+    'TK.AOIB':{input:[10,20,30,20,30,30,30,30,30,30,30,30,30,26],failed:[1,1,2,1,1,2,1,1,1,1,1,1,1,0],retest:[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+    'ZA.BDL':{input:[10,20,28,20,28,28,28,28,28,28,28,28,28,24],failed:[0,1,1,0,1,1,0,1,0,1,0,1,0,1],retest:[0,1,1,0,1,1,0,1,1,1,0,1,0,1]},
+    'ZC.BFT':{input:[10,20,30,20,30,30,30,30,30,30,30,30,30,25],failed:[1,2,3,2,3,3,2,3,2,3,2,3,2,0],retest:[1,2,3,2,2,3,2,2,2,3,2,3,2,0]},
+    'ZE.WBT':{input:[0,0,0,0,20,25,25,25,25,25,25,25,25,106],failed:[0,0,0,0,5,6,5,6,5,6,5,6,5,9],retest:[0,0,0,0,2,2,2,2,2,2,2,2,2,5]}
+  }
+};
+
+const sensorTrendData={
+  dates:['3 Feb','4 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb','12 Feb'],
+  stations:{
+    'TL.AOIA':{input:[30,30,40,40,40,50,50,116],failed:[0,0,0,0,1,0,0,1],retest:[0,0,0,0,0,0,0,0]},
+    'ZC.BFT':{input:[30,30,40,40,40,50,50,116],failed:[0,1,1,1,1,2,1,3],retest:[0,1,1,1,1,2,2,6]}
+  }
+};
+
+const fatpTrendData={
+  dates:['6 Feb','7 Feb','9 Feb','10 Feb','11 Feb','12 Feb','13 Feb','14 Feb','16 Feb','17 Feb','18 Feb','19 Feb','25 Feb','27 Feb','28 Feb','2 Mar','3 Mar','5 Mar','6 Mar','9 Mar'],
+  stations:{
+    'T1.Function Test':{input:[8,8,8,8,15,15,15,15,15,15,15,15,15,10,10,10,10,8,8,5],failed:[3,4,3,2,5,4,5,4,4,3,4,3,3,2,2,3,3,2,2,2],retest:[2,2,1,1,3,2,3,2,2,2,2,1,2,1,1,2,1,1,1,1]},
+    'DK.Sensor/Barcode':{input:[0,0,0,0,8,8,10,10,12,12,12,12,12,10,10,10,10,8,8,5],failed:[0,0,0,0,1,1,2,1,1,1,1,1,1,0,0,0,0,0,1,0],retest:[0,0,0,0,1,1,2,2,2,1,1,1,1,1,1,0,0,0,1,0]},
+    'DW.WLAN OTA':{input:[0,0,0,0,0,0,5,5,8,8,8,8,8,8,8,8,8,6,6,4],failed:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],retest:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0]},
+    'QF.FQC':{input:[0,0,0,0,0,0,5,5,8,8,8,8,8,8,8,8,8,6,6,4],failed:[0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0],retest:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+  }
+};
+
+const trendCharts={};
+const activeStations={spe:{},mlb:{},sensor:{},fatp:{}};
+let trendBuilding=false;
+
+function buildStationTrend(area){
+  if(trendBuilding)return;trendBuilding=true;
+  try{
+    const data={spe:speTrendData,mlb:mlbTrendData,sensor:sensorTrendData,fatp:fatpTrendData}[area];
+    const canvasId=area+'TrendChart';
+    const togglesId=area+'StationToggles';
+    const typeEl=document.querySelector('input[name="'+area+'TrendType"]:checked');
+    const type=typeEl?typeEl.value:'fr';
+    const stationNames=Object.keys(data.stations);
+    if(Object.keys(activeStations[area]).length===0){stationNames.forEach(s=>activeStations[area][s]=true)}
+    const toggleDiv=document.getElementById(togglesId);
+    if(toggleDiv&&!toggleDiv.children.length){
+      stationNames.forEach((s,i)=>{
+        const btn=document.createElement('button');
+        const c=STATION_COLORS[i%STATION_COLORS.length];
+        btn.className='station-toggle active';
+        btn.style.setProperty('--station-color',c);btn.style.color=c;btn.style.borderColor=c;
+        btn.textContent=s;
+        btn.addEventListener('click',function(){activeStations[area][s]=!activeStations[area][s];this.classList.toggle('active');buildStationTrend(area)});
+        toggleDiv.appendChild(btn);
+      });
+    }
+    const datasets=[];
+    stationNames.forEach((s,i)=>{
+      if(!activeStations[area][s])return;
+      const st=data.stations[s];
+      const color=STATION_COLORS[i%STATION_COLORS.length];
+      const rates=st.input.map((inp,j)=>{
+        if(!inp||inp===0)return null;
+        return Math.round((type==='fr'?st.failed[j]:st.retest[j])/inp*1000)/10;
+      });
+      datasets.push({label:s,data:rates,borderColor:color,backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointBackgroundColor:color,pointBorderColor:isDark()?'#000':'#fff',pointBorderWidth:1.5,tension:0.3,spanGaps:true});
+    });
+    if(trendCharts[area]){trendCharts[area].destroy();const idx=allCharts.indexOf(trendCharts[area]);if(idx>-1)allCharts.splice(idx,1)}
+    const t=getThemeColors();
+    const chart=new Chart(document.getElementById(canvasId),{
+      type:'line',data:{labels:data.dates,datasets:datasets},
+      options:{responsive:false,animation:false,scales:{
+        y:{beginAtZero:true,grid:{color:t.grid},ticks:{callback:v=>v+'%'},title:{display:true,text:(type==='fr'?'Failure Rate %':'Retest Rate %'),color:t.text}},
+        x:{grid:{display:false},ticks:{maxRotation:45,font:{size:11}}}
+      },plugins:{datalabels:{display:false},legend:{display:false},
+        tooltip:{mode:'index',intersect:false,backgroundColor:t.tooltipBg,titleColor:t.tooltipText,bodyColor:t.tooltipText,borderColor:t.tooltipBorder,borderWidth:1,
+          callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!==null?ctx.parsed.y.toFixed(1)+'%':'N/A')}}}}
+    });
+    trendCharts[area]=chart;allCharts.push(chart);
+  }finally{trendBuilding=false}
+}
 
 // ===== DYNAMIC PARETO SYSTEM =====
 // SPE FPY (Retest) — rates calculated as retestQty / totalInput(428) * 100
@@ -1290,6 +1436,14 @@ function showSection(sectionId,btn){
         const prefix=ps.replace('-pareto','');
         buildPareto(prefix+'-fpy',paretoCountState[prefix+'-fpy']);
         buildPareto(prefix+'-lpy',paretoCountState[prefix+'-lpy']);
+      }
+    });
+    const stationSections=['spe-stations','mlb-stations','sensor-stations','fatp-stations'];
+    stationSections.forEach(ss=>{
+      if(sectionId===ss){
+        const prefix=ss.replace('-stations','');
+        const card=document.getElementById(prefix+'TrendCard');
+        if(card){card.style.display='block';setTimeout(()=>buildStationTrend(prefix),100)}
       }
     });
   },50);
