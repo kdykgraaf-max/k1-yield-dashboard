@@ -1,4 +1,4 @@
-# K1 Proto Yield Dashboard — v1
+# K1 Proto Yield Dashboard — v2
 
 **Live:** https://blockcell.sqprod.co/sites/k1-yield-dashboard/
 **GitHub:** https://github.com/kdykgraaf-max/k1-yield-dashboard
@@ -8,14 +8,20 @@ K1a Proto Build yield dashboard covering 3 PCBA types (SPE, MLB, Sensor) + FATP.
 Proto build is the 1st build for K1a product (Jan–Mar 2026) at Wistron MYS.
 
 ## Version History
-- **v1** (2026-03-25) — Full dashboard with intelligence summary, 3 PCBA sections (SPE/MLB/Sensor) + FATP, dynamic paretos, collaborative FA/CA via GitHub Gist, image & Excel export, dark/light theme
+- **v2** (2026-03-25) — Full FATP station data, pareto charts, and FA/CA tables populated from FA Tracker + MIL doc. Persistent Gist save/load with PAT token. All 4 product areas fully functional.
+- **v1** (2026-03-25) — Initial dashboard with SPE/MLB/Sensor data, FATP placeholder.
 
 ## Features
 - 🔬 Yield Intelligence Summary with PCBA comparison chart
-- 📈 FPY & LPY Over Time per PCBA type
+- 📈 FPY & LPY Over Time per PCBA type (SPE, MLB, Sensor, FATP)
 - 📊 Retest Rate & Failure Rate by Station (collapsible detail tables)
-- 📉 Dynamic Pareto Charts (Top 10/All with cumulative line)
-- 📋 Collaborative Action Tables (FA, CA, DRI — saved via GitHub Gist)
+- 📉 Dynamic Pareto Charts (Top 10/All with cumulative line) — 8 paretos total
+- 📋 Collaborative FA/CA Action Tables with root cause categories, numbered CAs, DRI contacts
+  - Pre-populated from MIL doc, FA Tracker, and Yield Bridge & MIL report
+  - Editable Risk/FA/CA/DRI cells
+  - 💾 Save for Everyone (GitHub Gist persistence with PAT)
+  - 🔄 Reload Latest
+  - 📜 Version History with preview & restore
 - 📸 Export to Image (html2canvas)
 - 📊 Export to Excel (xlsx.js)
 - 🗂️ Sidebar Navigation with yield badges per PCBA
