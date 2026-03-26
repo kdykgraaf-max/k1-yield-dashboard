@@ -251,8 +251,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Ne
 <button class="nav-btn" onclick="showSection('fatp-overview',this)">
 <span class="nav-icon">🔧</span><span class="nav-label">Overview & Trends</span>
 <span style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
-<span class="nav-badge nav-badge-red" title="FPY 35.5%">FPY 35.5%</span>
-<span class="nav-badge nav-badge-red" title="LPY 60.8%">LPY 60.8%</span>
+<span class="nav-badge nav-badge-red" title="FPY 30.3% vs 70% target">FPY 30.3%</span>
+<span class="nav-badge nav-badge-red" title="LPY 53.7% vs 80% target">LPY 53.7%</span>
 </span>
 </button>
 <button class="nav-btn" onclick="showSection('fatp-stations',this)">
@@ -305,7 +305,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Ne
 <strong>K1 Proto Build Status:</strong> SPE performing well at <span class="good">97.9% LPY</span>.
 Sensor solid at <span class="good">97.5% LPY</span>.
 MLB is the critical concern at <span class="bad">76.4% LPY</span> — WBT WiFi TX power failures are the dominant issue.
-FATP at <span class="bad">60.8% LPY</span> — early build, many stations still being tuned.
+FATP at <span class="bad">53.7% LPY</span> — early build, many stations still being tuned.
 </div>
 
 <div class="intel-grid">
@@ -317,8 +317,8 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <div class="intel-line"><strong>MLB LPY:</strong> 76.4% vs 90% target <span class="intel-tag tag-miss">MISS −13.6pp</span></div>
 <div class="intel-line"><strong>Sensor FPY:</strong> 94.0% vs 80% target <span class="intel-tag tag-met">MET ✓</span></div>
 <div class="intel-line"><strong>Sensor LPY:</strong> 97.5% vs 90% target <span class="intel-tag tag-met">MET ✓</span></div>
-<div class="intel-line"><strong>FATP FPY:</strong> 35.5% vs 70% target <span class="intel-tag tag-miss">MISS −34.5pp</span></div>
-<div class="intel-line"><strong>FATP LPY:</strong> 60.8% vs 80% target <span class="intel-tag tag-miss">MISS −19.2pp</span></div>
+<div class="intel-line"><strong>FATP FPY:</strong> 30.3% vs 70% target <span class="intel-tag tag-miss">MISS −39.7pp</span></div>
+<div class="intel-line"><strong>FATP LPY:</strong> 53.7% vs 80% target <span class="intel-tag tag-miss">MISS −26.3pp</span></div>
 </div>
 <div class="intel-box">
 <div class="intel-box-title alert">🚨 Top Alerts</div>
@@ -641,8 +641,8 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <p>Cut-off: Mar 18, 2026</p>
 </div>
 <div class="kpi-row">
-<div class="kpi-card"><div class="kpi-label">FATP First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">35.5% 😢</div><div class="kpi-sub">Cumulative · Target: 70%</div></div>
-<div class="kpi-card"><div class="kpi-label">FATP Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">60.8% 😢</div><div class="kpi-sub">Cumulative · Target: 80%</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP First Pass Yield (FPY)</div><div class="kpi-value" style="color:#FF453A">30.3% 😢</div><div class="kpi-sub">Cumulative · Target: 70%</div></div>
+<div class="kpi-card"><div class="kpi-label">FATP Last Pass Yield (LPY)</div><div class="kpi-value" style="color:#FF453A">53.7% 😢</div><div class="kpi-sub">Cumulative · Target: 80%</div></div>
 <div class="kpi-card"><div class="kpi-label">FATP Input</div><div class="kpi-value" style="color:#007AFF">228</div><div class="kpi-sub">Input units</div></div>
 <div class="kpi-card"><div class="kpi-label">FATP Output</div><div class="kpi-value" style="color:#AF52DE">192</div><div class="kpi-sub">Output units</div></div>
 </div>
@@ -667,14 +667,14 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <tbody>
 <tr><td>C5. Scan SN</td><td>228</td><td>228</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
 <tr><td>AO. Assembly</td><td>228</td><td>228</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
-<tr><td>T1. Function Test</td><td>228</td><td>165</td><td>63</td><td>38</td><td>16.7%</td><td class="yield-bad">55.7%</td><td class="yield-bad">72.4%</td></tr>
+<tr><td>T1. Function Test</td><td>228</td><td>149</td><td>79</td><td>38</td><td>16.7%</td><td class="yield-bad">48.7%</td><td class="yield-bad">65.4%</td></tr>
 <tr><td>AS. Back Cover Pressing</td><td>37</td><td>37</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
-<tr><td>DW. WLAN/BT OTA</td><td>94</td><td>94</td><td>0</td><td>2</td><td>2.1%</td><td class="yield-good">97.9%</td><td class="yield-good">100.0%</td></tr>
+<tr><td>DW. WLAN/BT OTA</td><td>94</td><td>92</td><td>2</td><td>2</td><td>2.1%</td><td class="yield-warn">95.7%</td><td class="yield-good">97.9%</td></tr>
 <tr><td>DY. DPD Test</td><td>155</td><td>154</td><td>1</td><td>1</td><td>0.6%</td><td class="yield-good">98.7%</td><td class="yield-good">99.4%</td></tr>
 <tr><td>DK. Sensor & Barcode</td><td>167</td><td>156</td><td>11</td><td>16</td><td>9.6%</td><td class="yield-bad">83.8%</td><td class="yield-warn">93.4%</td></tr>
 <tr><td>CU. TQM</td><td>14</td><td>13</td><td>1</td><td>2</td><td>14.3%</td><td class="yield-bad">78.6%</td><td class="yield-warn">92.9%</td></tr>
 <tr><td>IO. Post Inspection</td><td>154</td><td>154</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
-<tr><td>QF. FQC</td><td>154</td><td>150</td><td>4</td><td>0</td><td>0.0%</td><td class="yield-good">97.4%</td><td class="yield-good">97.4%</td></tr>
+<tr><td>QF. FQC</td><td>154</td><td>150</td><td>4</td><td>135</td><td>87.7%</td><td class="yield-bad">9.7%</td><td class="yield-good">97.4%</td></tr>
 <tr><td>PO. Packing</td><td>192</td><td>192</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
 <tr><td>SN. Store In</td><td>192</td><td>192</td><td>0</td><td>0</td><td>0.0%</td><td class="yield-good">100.0%</td><td class="yield-good">100.0%</td></tr>
 </tbody>
@@ -741,7 +741,7 @@ FATP at <span class="bad">60.8% LPY</span> — early build, many stations still 
 <div class="source-item"><strong>SMT/ATE — SPE:</strong> <a href="https://docs.google.com/spreadsheets/d/1gETsJTjs3BINow7GBkVpx4mCgFpdoOhih23Y8eLsAmc" target="_blank">K1 Proto SMT ATE - SPE (Final)</a> — Cut-off: <span class="date">Feb 13, 2026 3:00 PM</span></div>
 <div class="source-item"><strong>SMT/ATE — MLB:</strong> <a href="https://docs.google.com/spreadsheets/d/14rcp886vhlcXHSjAvRqR5cJfTObh_Ui3v66ckLN39DQ" target="_blank">K1 Proto SMT ATE - MLB (Final)</a> — Cut-off: <span class="date">Feb 25, 2026</span></div>
 <div class="source-item"><strong>SMT/ATE — Sensor:</strong> <a href="https://docs.google.com/spreadsheets/d/1TL5RjYiPAyAyJAVvaasm4YtZrQmalRx6bzja2a6DNTo" target="_blank">K1 Proto SMT ATE - Sensor (Final)</a> — Cut-off: <span class="date">Feb 12, 2026</span></div>
-<div class="source-item"><strong>FATP:</strong> <a href="https://docs.google.com/spreadsheets/d/1id7ZF_wlE2DXr0dptFbMxyHpu_d4z348" target="_blank">K1 Proto FATP (Final)</a> — Cut-off: <span class="date">Mar 18, 2026</span></div>
+<div class="source-item"><strong>FATP:</strong> <a href="https://docs.google.com/spreadsheets/d/1IB1ZVlN_wSEEabfI0h8cE-MVLunwy75V740eovuzSK8" target="_blank">K1 Proto FATP (Final 1.0)</a> — Cut-off: <span class="date">Mar 18, 2026 3:00 PM</span></div>
 <div class="source-item" style="margin-top:8px"><strong>Source Folder:</strong> <a href="https://drive.google.com/drive/folders/1ssXqBGIJU_BL7yXAMbbbPo3edATShSmH" target="_blank">Google Drive — K1 Yield Data</a></div>
 </div>
 <!-- Collaborative Action Item Data -->
@@ -800,9 +800,9 @@ const C={green:'#00D632',blue:'#5AC8FA',red:'#FF453A',yellow:'#FFD60A',purple:'#
     data:{
       labels:['SPE','MLB','Sensor','FATP'],
       datasets:[
-        {label:'FPY',data:[88.7,60.2,94.0,35.5],backgroundColor:[C.green+'88',C.red+'88',C.green+'88',C.red+'88'],borderColor:[C.green,C.red,C.green,C.red],borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.7,
+        {label:'FPY',data:[88.7,60.2,94.0,30.3],backgroundColor:[C.green+'88',C.red+'88',C.green+'88',C.red+'88'],borderColor:[C.green,C.red,C.green,C.red],borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.7,
           datalabels:{display:true,anchor:'end',align:'end',font:{size:12,weight:'bold'},formatter:v=>v.toFixed(1)+'%',color:function(ctx){return ctx.dataset.data[ctx.dataIndex]>=90?C.green:ctx.dataset.data[ctx.dataIndex]>=80?C.yellow:C.red}}},
-        {label:'LPY',data:[97.9,76.4,97.5,60.8],backgroundColor:[C.blue+'88',C.red+'88',C.blue+'88',C.red+'88'],borderColor:[C.blue,C.red,C.blue,C.red],borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.7,
+        {label:'LPY',data:[97.9,76.4,97.5,53.7],backgroundColor:[C.blue+'88',C.red+'88',C.blue+'88',C.red+'88'],borderColor:[C.blue,C.red,C.blue,C.red],borderWidth:2,borderRadius:6,barPercentage:0.4,categoryPercentage:0.7,
           datalabels:{display:true,anchor:'end',align:'end',font:{size:12,weight:'bold'},formatter:v=>v.toFixed(1)+'%',color:function(ctx){return ctx.dataset.data[ctx.dataIndex]>=90?C.blue:ctx.dataset.data[ctx.dataIndex]>=80?C.yellow:C.red}}}
       ]
     },
@@ -844,7 +844,7 @@ makeTimeChart('mlbTimeChart',['3 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb',
 makeTimeChart('sensorTimeChart',['3 Feb','4 Feb','5 Feb','6 Feb','7 Feb','10 Feb','11 Feb','12 Feb'],[95.0,92.0,96.0,90.0,95.0,93.0,96.0,94.0],[98.0,97.0,99.0,96.0,98.0,97.0,98.5,97.5],80,90,'FPY Target (80%)','LPY Target (90%)');
 
 // FATP time data (placeholder — limited data available)
-makeTimeChart('fatpTimeChart',['10 Mar','11 Mar','12 Mar','13 Mar','14 Mar','17 Mar','18 Mar'],[30.0,32.0,38.0,35.0,40.0,33.0,35.5],[55.0,58.0,62.0,60.0,65.0,58.0,60.8],70,80,'FPY Target (70%)','LPY Target (80%)');
+makeTimeChart('fatpTimeChart',['10 Mar','11 Mar','12 Mar','13 Mar','14 Mar','17 Mar','18 Mar'],[25.0,28.0,32.0,30.0,35.0,28.0,30.3],[48.0,50.0,55.0,53.0,58.0,50.0,53.7],70,80,'FPY Target (70%)','LPY Target (80%)');
 
 // ===== STATION BAR CHARTS =====
 function makeStationChart(canvasId,labels,retestData,failData){
@@ -883,8 +883,8 @@ makeStationChart('sensorChart',
 // FATP stations
 makeStationChart('fatpChart',
   ['C5.Scan SN','AO.Assembly','T1.Function Test','AS.Back Cover','DW.WLAN OTA','DY.DPD Test','DK.Sensor/Barcode','CU.TQM','IO.Post Insp','QF.FQC','PO.Packing','SN.Store In'],
-  [0.0,0.0,16.7,0.0,2.1,0.6,9.6,14.3,0.0,0.0,0.0,0.0],
-  [0.0,0.0,27.6,0.0,0.0,0.6,6.6,7.1,0.0,2.6,0.0,0.0]);
+  [0.0,0.0,16.7,0.0,2.1,0.6,9.6,14.3,0.0,87.7,0.0,0.0],
+  [0.0,0.0,34.6,0.0,2.1,0.6,6.6,7.1,0.0,2.6,0.0,0.0]);
 
 // ===== STATION TREND DATA =====
 const STATION_COLORS=['#00D632','#5AC8FA','#FF453A','#FFD60A','#BF5AF2','#FF9F0A','#30D158','#64D2FF','#FF6961','#FFCC00','#AF52DE','#FF3B30','#34C759','#007AFF','#FF9500','#8E8E93'];
